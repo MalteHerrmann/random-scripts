@@ -37,10 +37,12 @@ def get_commits_after(source_repo, last_sync_commit):
     return filtered_commits
 
 
-def create_diff_files(source_repo, commits):
+def create_diff_files(source_repo, commits) -> str:
     """
     Iterates through the list of given commits
     and creates a diff file for each pair of commits.
+
+    Returns the path to the directory containing the diff files.
     """
     # Create a directory for diffs if it doesn't exist
     diffs_dir = os.path.join(source_repo, 'diffs')
@@ -57,6 +59,22 @@ def create_diff_files(source_repo, commits):
         # Create the diff file
         subprocess.run(['git', 'diff', f'{commit_1}..{commit}'], stdout=open(diff_file_path, 'w'), check=True)
 
+    return diffs_dir
+
+
+def replace_evmos_with_evmOS(diff_file_path):
+    """
+    Replaces all instances of the Evmos repository with "github.com/evmos/os/"
+    in the diff file.
+    """
+    with open(diff_file_path, 'r') as file:
+        content = file.read()
+
+    content = re.sub(r'github\.com/evmos/evmos/v20/', 'github.com/evmos/os/', content)
+
+    with open(diff_file_path, 'w') as file:
+        file.write(content)
+
 
 def update_repository(source_repo, last_sync_commit):
     """
@@ -65,7 +83,11 @@ def update_repository(source_repo, last_sync_commit):
     Evmos repository after the last synced commit.
     """
     commits = get_commits_after(source_repo, last_sync_commit)
-    create_diff_files(source_repo, commits)
+    diffs_dir = create_diff_files(source_repo, commits)
+
+    for diff_file_path in os.listdir(diffs_dir):
+        replace_evmos_with_evmOS(os.path.join(diffs_dir, diff_file_path))
+
     print("Diff files created successfully.")
 
 
