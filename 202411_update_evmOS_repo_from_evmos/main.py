@@ -64,13 +64,19 @@ def create_diff_files(source_repo, commits) -> str:
 
 def replace_evmos_with_evmOS(diff_file_path):
     """
-    Replaces all instances of the Evmos repository with "github.com/evmos/os/"
-    in the diff file.
+    Does all required replacements in the diff files for expected changes between
+    the Evmos repository and the evmOS repository.
     """
     with open(diff_file_path, 'r') as file:
         content = file.read()
 
     content = re.sub(r'github\.com/evmos/evmos/v20/', 'github.com/evmos/os/', content)
+    content = re.sub(r'ethermint/evm/v1', 'os/evm/v1', content)
+    content = re.sub(r'ethermint/feemarket/v1', 'os/feemarket/v1', content)
+    content = re.sub(r'ethermint/erc20/v1', 'os/erc20/v1', content)
+    content = re.sub(r'ethermint/crypto/v1', 'os/crypto/v1', content)
+    content = re.sub(r'ethermint/types/v1', 'os/types/v1', content)
+    content = re.sub(r'testutil/integration/evmos/', 'testutil/integration/os/', content)
 
     with open(diff_file_path, 'w') as file:
         file.write(content)
