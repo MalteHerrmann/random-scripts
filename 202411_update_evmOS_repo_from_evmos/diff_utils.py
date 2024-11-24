@@ -29,13 +29,16 @@ def create_diff_files(source_repo, commits):
         diff_file_path = os.path.join(diffs_dir, f"{i:03d}_evmos_diff_{commit_1}_{commit}.diff")
         subprocess.run(['git', 'diff', f'{commit_1}..{commit}'], stdout=open(diff_file_path, 'w'), check=True)
 
-    return diffs_dir
+    diff_files = [file for file in os.listdir(diffs_dir) if file.endswith('.diff')]
+
+    return diffs_dir, diff_files
 
 
 def replace_evmos_with_evmOS(diff_file_path):
     with open(diff_file_path, 'r') as file:
         content = file.read()
 
+    # paths
     content = re.sub(r'github\.com/evmos/evmos/v20/', 'github.com/evmos/os/', content)
     content = re.sub(r'ethermint/evm/v1', 'os/evm/v1', content)
     content = re.sub(r'ethermint/feemarket/v1', 'os/feemarket/v1', content)
@@ -65,15 +68,19 @@ def replace_evmos_with_evmOS(diff_file_path):
     content = re.sub(r'testutil/contract.go', 'example_chain/testutil/contract.go', content)
     content = re.sub(r'ante/evm/setup_ctx_test.go', 'ante/evm/01_setup_ctx_test.go', content)
 
+    # Code snippets
+    content = re.sub(r'[a-z0-9]+\.WEVMOSContractMainnet', 'testconstants.WEVMOSContractMainnet', content)
+    content = re.sub(r'[a-z0-9]+\.WEVMOSContractTestnet', 'testconstants.WEVMOSContractTestnet', content)
+
     with open(diff_file_path, 'w') as file:
         file.write(content)
 
 
 def update_repository(source_repo, last_sync_commit):
     commits = get_commits_after(source_repo, last_sync_commit)
-    diffs_dir = create_diff_files(source_repo, commits)
+    diffs_dir, diff_files = create_diff_files(source_repo, commits)
 
-    for diff_file_path in os.listdir(diffs_dir):
+    for diff_file_path in diff_files:
         replace_evmos_with_evmOS(os.path.join(diffs_dir, diff_file_path))
 
-    print("Diff files created successfully.") 
+    print(f"{len(diff_files)} diff files created successfully.") 

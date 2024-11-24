@@ -23,7 +23,7 @@ def create_arg_parser() -> argparse.ArgumentParser:
     apply_parser = subparsers.add_parser('apply', help='Apply diff files')
     apply_parser.add_argument('source_repo', help='Path to the source repository')
     apply_parser.add_argument('target_dir', help='Target directory to apply diffs')
-    apply_parser.add_argument('diff_file', help='Diff file to apply')
+    apply_parser.add_argument('diff_number', help='Diff number to apply')
 
     return parser
 
@@ -34,7 +34,7 @@ if __name__ == "__main__":
     if args.command == 'generate':
         update_repository(args.source_repo, args.last_sync_commit)
     elif args.command == 'apply':
-        apply_diff(args.source_repo, args.target_dir, args.diff_file)
+        apply_diff(args.source_repo, args.target_dir, args.diff_number)
     else:
         parser.print_help()
 
