@@ -14,7 +14,16 @@ def apply_diff(source_repo, target_dir, diff_number):
     else:
         raise FileNotFoundError(f"Diff file not found for number: {diff_number}")
 
+    commits_match = re.search(r"evmos_diff_(?P<commit_1>[a-z0-9]+)_(?P<commit_2>[a-z0-9]+)", diff_file)
+    if not commits_match:
+        raise ValueError(f"Commit info not found in diff file name: {diff_file}")
+
     diff_file_path = os.path.join(diffs_dir, diff_file)
+
+    os.chdir(source_repo)
+    commit_2 = commits_match.group('commit_2')
+    out = subprocess.run(['git', '--no-pager', 'show', '--quiet', '--format=%s', commit_2], check=True, capture_output=True, text=True)
+    commit_title = out.stdout.strip()
 
     os.chdir(target_dir)
     result = subprocess.run(['git', 'apply', '--reject', diff_file_path], capture_output=True, text=True)
@@ -43,3 +52,4 @@ def apply_diff(source_repo, target_dir, diff_number):
             print("   ", reason)
 
     print(f"\nDone applying {diff_file}") 
+    print(f"{commit_2} {commit_title}")
