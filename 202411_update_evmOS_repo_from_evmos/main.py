@@ -6,104 +6,35 @@ Usage:
     python main.py
 """
 
-import subprocess
-import os
-import sys
-import re
+import argparse
+from diff_utils import update_repository
+from apply_diff import apply_diff
 
-def get_commits_after(source_repo, last_sync_commit):
-    """
-    Gets the commits in the source repository and
-    only returns those after the last synced commit provided.
-    """
-    # Change to the source repository directory
-    os.chdir(source_repo)
-    
-    # Get the commit logs
-    result = subprocess.run(['git', 'log', '--oneline'], capture_output=True, text=True, check=True)
-    commits = result.stdout.strip().split('\n')
-    
-    # Filter commits after the last sync point
-    filtered_commits = []
-    for commit in commits:
-        commit_hash = commit.split(' ')[0]
-        filtered_commits.append(commit)
+def create_arg_parser() -> argparse.ArgumentParser:
+    parser = argparse.ArgumentParser(description="Update evmOS repository from Evmos repository.")
+    subparsers = parser.add_subparsers(dest='command')
 
-        print(f"comparing {commit_hash} with {last_sync_commit}: {commit_hash == last_sync_commit}")
-        # break after adding the last synced commit
-        if commit_hash == last_sync_commit:
-            break
+    # Subcommand for generating diffs
+    generate_parser = subparsers.add_parser('generate', help='Generate diff files')
+    generate_parser.add_argument('source_repo', help='Path to the source repository')
+    generate_parser.add_argument('last_sync_commit', help='Last synced commit hash')
 
-    return filtered_commits
+    # Subcommand for applying diffs
+    apply_parser = subparsers.add_parser('apply', help='Apply diff files')
+    apply_parser.add_argument('source_repo', help='Path to the source repository')
+    apply_parser.add_argument('target_dir', help='Target directory to apply diffs')
+    apply_parser.add_argument('diff_number', help='Diff number to apply')
 
-
-def create_diff_files(source_repo, commits) -> str:
-    """
-    Iterates through the list of given commits
-    and creates a diff file for each pair of commits.
-
-    Returns the path to the directory containing the diff files.
-    """
-    # Create a directory for diffs if it doesn't exist
-    diffs_dir = os.path.join(source_repo, 'diffs')
-    os.makedirs(diffs_dir, exist_ok=True)
-
-    # NOTE: We reverse the commits to get the earliest commits first
-    # so that the changes are applied in the correct order
-    reversed_commits = commits[::-1]
-    for i in range(1, len(reversed_commits)):
-        commit_1 = reversed_commits[i - 1].split(' ')[0]
-        commit = reversed_commits[i].split(' ')[0]
-        diff_file_path = os.path.join(diffs_dir, f"{i:03d}_evmos_diff_{commit_1}_{commit}.diff")
-        
-        # Create the diff file
-        subprocess.run(['git', 'diff', f'{commit_1}..{commit}'], stdout=open(diff_file_path, 'w'), check=True)
-
-    return diffs_dir
-
-
-def replace_evmos_with_evmOS(diff_file_path):
-    """
-    Does all required replacements in the diff files for expected changes between
-    the Evmos repository and the evmOS repository.
-    """
-    with open(diff_file_path, 'r') as file:
-        content = file.read()
-
-    content = re.sub(r'github\.com/evmos/evmos/v20/', 'github.com/evmos/os/', content)
-    content = re.sub(r'ethermint/evm/v1', 'os/evm/v1', content)
-    content = re.sub(r'ethermint/feemarket/v1', 'os/feemarket/v1', content)
-    content = re.sub(r'ethermint/erc20/v1', 'os/erc20/v1', content)
-    content = re.sub(r'ethermint/crypto/v1', 'os/crypto/v1', content)
-    content = re.sub(r'ethermint/types/v1', 'os/types/v1', content)
-    content = re.sub(r'testutil/integration/evmos/', 'testutil/integration/os/', content)
-
-    with open(diff_file_path, 'w') as file:
-        file.write(content)
-
-
-def update_repository(source_repo, last_sync_commit):
-    """
-    Updates the evmOS repository by creating diff files
-    for each pair of commits on the main branch of the
-    Evmos repository after the last synced commit.
-    """
-    commits = get_commits_after(source_repo, last_sync_commit)
-    diffs_dir = create_diff_files(source_repo, commits)
-
-    for diff_file_path in os.listdir(diffs_dir):
-        replace_evmos_with_evmOS(os.path.join(diffs_dir, diff_file_path))
-
-    print("Diff files created successfully.")
-
+    return parser
 
 if __name__ == "__main__":
-    if len(sys.argv) != 3:
-        print("Usage: python main.py <source_repo> <last_sync_commit>")
-        sys.exit(1)
+    parser = create_arg_parser()
+    args = parser.parse_args()
 
-    source_repo = sys.argv[1]
-    last_sync_commit = sys.argv[2]
-    
-    update_repository(source_repo, last_sync_commit)
+    if args.command == 'generate':
+        update_repository(args.source_repo, args.last_sync_commit)
+    elif args.command == 'apply':
+        apply_diff(args.source_repo, args.target_dir, args.diff_number)
+    else:
+        parser.print_help()
 
