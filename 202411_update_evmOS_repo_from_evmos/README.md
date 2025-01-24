@@ -27,6 +27,8 @@ TARGET="github.com/cosmos/cosmos-db@v1.1.0"
 go get "$TARGET" && go mod tidy && cd example_chain && go get "$TARGET" && go mod tidy && cd ..
 ```
 
+This logic is **executed by this tool**, whenever it matches a dependency bump commit.
+
 ## Example
 
 First we generate the diffs from the most recent commits in the Evmos repository.
