@@ -12,10 +12,23 @@ def get_commits_after(source_repo, last_sync_commit):
     for commit in commits:
         commit_hash = commit.split(' ')[0]
         filtered_commits.append(commit)
-        if commit_hash == last_sync_commit:
+        if hashes_match(commit_hash, last_sync_commit):
             break
 
     return filtered_commits 
+
+
+def hashes_match(commit_hash, last_sync_commit) -> bool:
+    if len(commit_hash) == len(last_sync_commit):
+        return commit_hash == last_sync_commit
+
+    compare_length = min(len(commit_hash), len(last_sync_commit))
+    if len(commit_hash) > len(last_sync_commit):
+        return commit_hash[:compare_length] == last_sync_commit[:compare_length]
+    elif len(commit_hash) < len(last_sync_commit):
+        return commit_hash[:compare_length] == last_sync_commit[:compare_length]
+
+    return False
 
 
 def create_diff_files(source_repo, commits):
