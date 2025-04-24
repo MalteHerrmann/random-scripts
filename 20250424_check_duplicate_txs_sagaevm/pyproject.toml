@@ -1,0 +1,17 @@
+[project]
+name = "duplicate-tx-tester"
+version = "0.1.0"
+description = "A tool to test duplicate transactions on EVM-compatible blockchains"
+requires-python = ">=3.8"
+dependencies = [
+    "web3==6.15.1",
+    "python-dotenv==1.0.1",
+    "eth-account==0.11.0"
+]
+
+[build-system]
+requires = ["hatchling"]
+build-backend = "hatchling.build"
+
+[tool.hatch.build.targets.wheel]
+packages = ["."] 
