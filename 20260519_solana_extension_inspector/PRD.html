@@ -1,0 +1,429 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>PRD: Solana Program & Token-2022 Authority Audit Tool</title>
+<style>
+  body { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif; max-width: 860px; margin: 2rem auto; padding: 0 1rem; line-height: 1.5; color: #222; }
+  h1, h2, h3, h4 { line-height: 1.25; }
+  h1 { border-bottom: 1px solid #ccc; padding-bottom: 0.3rem; }
+  h2 { border-bottom: 1px solid #eee; padding-bottom: 0.2rem; margin-top: 2rem; }
+  code { background: #f4f4f4; padding: 0.1rem 0.3rem; border-radius: 3px; font-size: 0.9em; }
+  pre { background: #f4f4f4; padding: 0.8rem; border-radius: 4px; overflow-x: auto; font-size: 0.85em; }
+  pre code { background: none; padding: 0; }
+  table { border-collapse: collapse; width: 100%; margin: 1rem 0; }
+  th, td { border: 1px solid #ddd; padding: 0.4rem 0.6rem; text-align: left; font-size: 0.95em; vertical-align: top; }
+  th { background: #f4f4f4; }
+  blockquote { border-left: 3px solid #ccc; padding-left: 1rem; color: #555; margin: 1rem 0; }
+  hr { border: none; border-top: 1px solid #eee; margin: 2rem 0; }
+</style>
+</head>
+<body>
+
+<h1>PRD: Solana Program &amp; Token-2022 Authority Audit Tool</h1>
+
+<h2>1. Overview</h2>
+
+<p>A TypeScript CLI tool that produces a structured authority audit report for any pair of (Solana program, Token-2022 mint). Given a program ID and a mint address, it resolves every authority slot involved in governing the program and the token, classifies each authority holder (EOA / Squads multisig / SPL Governance PDA / <code>None</code>), and outputs a JSON report suitable for human review and version control.</p>
+
+<p>The tool's primary use case is auditing transfer-hook-enabled stablecoins and other Token-2022 deployments, where the effective governance surface spans both the mint's extension authorities and the upgrade authority of the hook program.</p>
+
+<h2>2. Goals &amp; non-goals</h2>
+
+<h3>Goals</h3>
+<ul>
+  <li>Resolve every authority slot on a program and a Token-2022 mint to a concrete pubkey (or <code>None</code>).</li>
+  <li>Classify each authority pubkey as: EOA, Squads multisig, SPL Governance PDA, other program-owned account, or non-existent.</li>
+  <li>Report whether the program has a verified build (OtterSec) and an Anchor IDL.</li>
+  <li>Produce upgrade history for the program (slot, signer, signature per upgrade).</li>
+  <li>Output a deterministic JSON report that can be diffed across runs to detect authority changes.</li>
+</ul>
+
+<h3>Non-goals</h3>
+<ul>
+  <li>No source-code analysis of the program. Verification status only.</li>
+  <li>No risk scoring or recommendations. The tool surfaces facts; humans interpret them.</li>
+  <li>No support for non-Token-2022 mints (classic SPL Token mints are out of scope for v1).</li>
+  <li>No real-time monitoring or webhooks. Single-shot CLI only.</li>
+</ul>
+
+<h2>3. Inputs &amp; outputs</h2>
+
+<h3>Inputs</h3>
+<ul>
+  <li><code>--program &lt;PUBKEY&gt;</code> — required. Program ID to audit.</li>
+  <li><code>--mint &lt;PUBKEY&gt;</code> — required. Token-2022 mint to audit.</li>
+  <li><code>--rpc &lt;URL&gt;</code> — optional. RPC endpoint. Defaults to <code>RPC_URL</code> env var.</li>
+  <li><code>--out &lt;PATH&gt;</code> — optional. Output file path. Defaults to <code>./audit-&lt;program&gt;-&lt;mint&gt;.json</code>.</li>
+</ul>
+
+<h3>Output</h3>
+
+<p>A single JSON file with this top-level shape:</p>
+
+<pre><code>{
+  "auditedAt": "2026-05-19T12:00:00Z",
+  "rpcEndpoint": "https://...",
+  "program": {
+    "address": "extay...",
+    "loader": "BPFLoaderUpgradeab1e11111111111111111111111",
+    "loaderVersion": "v3",
+    "executable": true,
+    "programDataAddress": "...",
+    "lastDeployedSlot": 123456789,
+    "bytecodeHash": "sha256:...",
+    "bytecodeLength": 234567,
+    "upgradeAuthority": { /* AuthorityHolder, see below */ },
+    "upgradeHistory": [
+      { "slot": 123, "signature": "...", "signer": "..." }
+    ],
+    "verifiedBuild": {
+      "verified": true,
+      "repoUrl": "https://github.com/...",
+      "commit": "abc123",
+      "verifiedAt": "..."
+    },
+    "anchorIdl": {
+      "present": true,
+      "name": "transfer_hook",
+      "version": "0.1.0",
+      "instructions": ["execute", "initialize_extra_account_meta_list"]
+    }
+  },
+  "mint": {
+    "address": "usdk...",
+    "tokenProgram": "TokenzQdBNbLqP5VEhdkAS6EPFLC1PHnBqCXEpPxuEb",
+    "decimals": 6,
+    "supply": "1000000000000",
+    "mintAuthority": { /* AuthorityHolder */ },
+    "freezeAuthority": { /* AuthorityHolder */ },
+    "extensions": [
+      {
+        "type": "TransferHook",
+        "authority": { /* AuthorityHolder */ },
+        "programId": "extay..."
+      },
+      {
+        "type": "PermanentDelegate",
+        "delegate": { /* AuthorityHolder */ }
+      }
+      /* ...one entry per extension present */
+    ]
+  }
+}
+</code></pre>
+
+<p>Where <code>AuthorityHolder</code> is:</p>
+
+<pre><code>{
+  "pubkey": "..." | null,        // null means authority is None / renounced
+  "exists": true,                 // is there a system account at this pubkey?
+  "onCurve": true,                // ed25519-curve check; off-curve implies PDA
+  "classification": "eoa" | "squads_multisig" | "spl_governance" | "program_owned_other" | "none" | "unfunded_eoa",
+  "owner": "...",                 // owner program of the account, if exists
+  "lamports": 0,
+  "details": { /* classification-specific extras, e.g. squads threshold */ }
+}
+</code></pre>
+
+<h2>4. Tech stack &amp; dependencies</h2>
+
+<ul>
+  <li><strong>Runtime:</strong> Node.js 20+</li>
+  <li><strong>Package manager:</strong> pnpm</li>
+  <li><strong>Language:</strong> TypeScript 5.x, strict mode</li>
+  <li><strong>Module system:</strong> ESM (<code>"type": "module"</code> in package.json)</li>
+</ul>
+
+<h3>Dependencies</h3>
+
+<table>
+<tr><th>Package</th><th>Purpose</th></tr>
+<tr><td><code>@solana/web3.js</code></td><td>Core RPC client, <code>PublicKey</code>, <code>Connection</code></td></tr>
+<tr><td><code>@solana/spl-token</code></td><td>Token-2022 mint parsing, extension helpers</td></tr>
+<tr><td><code>@coral-xyz/anchor</code></td><td>Anchor IDL fetch</td></tr>
+<tr><td><code>@sqds/multisig</code></td><td>Squads multisig PDA classification</td></tr>
+<tr><td><code>commander</code></td><td>CLI argument parsing</td></tr>
+<tr><td><code>zod</code></td><td>Runtime validation of OtterSec API responses</td></tr>
+</table>
+
+<h3>Dev dependencies</h3>
+
+<table>
+<tr><th>Package</th><th>Purpose</th></tr>
+<tr><td><code>typescript</code></td><td>Compiler</td></tr>
+<tr><td><code>tsx</code></td><td>Run TS without precompile step</td></tr>
+<tr><td><code>@types/node</code></td><td>Node typings</td></tr>
+<tr><td><code>vitest</code></td><td>Unit tests</td></tr>
+</table>
+
+<h2>5. Installation &amp; setup</h2>
+
+<h3>Project init</h3>
+
+<pre><code>mkdir solana-authority-audit &amp;&amp; cd solana-authority-audit
+pnpm init
+</code></pre>
+
+<h3>Install runtime dependencies</h3>
+
+<pre><code>pnpm add @solana/web3.js @solana/spl-token @coral-xyz/anchor @sqds/multisig commander zod
+</code></pre>
+
+<h3>Install dev dependencies</h3>
+
+<pre><code>pnpm add -D typescript tsx @types/node vitest
+</code></pre>
+
+<h3>package.json</h3>
+
+<p>Ensure the following fields are present:</p>
+
+<pre><code>{
+  "name": "solana-authority-audit",
+  "version": "0.1.0",
+  "type": "module",
+  "bin": {
+    "audit": "./dist/cli.js"
+  },
+  "scripts": {
+    "build": "tsc",
+    "dev": "tsx src/cli.ts",
+    "start": "node dist/cli.js",
+    "test": "vitest run",
+    "typecheck": "tsc --noEmit"
+  }
+}
+</code></pre>
+
+<h3>tsconfig.json</h3>
+
+<pre><code>{
+  "compilerOptions": {
+    "target": "ES2022",
+    "module": "ES2022",
+    "moduleResolution": "bundler",
+    "outDir": "./dist",
+    "rootDir": "./src",
+    "strict": true,
+    "esModuleInterop": true,
+    "skipLibCheck": true,
+    "forceConsistentCasingInFileNames": true,
+    "resolveJsonModule": true,
+    "declaration": true,
+    "sourceMap": true
+  },
+  "include": ["src/**/*"],
+  "exclude": ["node_modules", "dist"]
+}
+</code></pre>
+
+<h3>Environment</h3>
+
+<p>Create a <code>.env</code> file (and add it to <code>.gitignore</code>):</p>
+
+<pre><code>RPC_URL=https://mainnet.helius-rpc.com/?api-key=YOUR_KEY
+</code></pre>
+
+<p>The tool should read <code>RPC_URL</code> from the environment if <code>--rpc</code> is not passed. Any standard Solana RPC works (Helius, QuickNode, Alchemy, Triton One). The public <code>api.mainnet-beta.solana.com</code> endpoint may be used but is heavily rate-limited and will likely fail on the upgrade-history step.</p>
+
+<h2>6. Implementation plan</h2>
+
+<p>The implementation is split into independent modules, each responsible for one section of the report. The CLI orchestrates them and merges the output.</p>
+
+<h3>Directory structure</h3>
+
+<pre><code>src/
+  cli.ts                  // entry point, arg parsing, orchestration
+  types.ts                // shared types (AuthorityHolder, AuditReport)
+  rpc.ts                  // Connection factory
+  program/
+    info.ts               // loader, ProgramData, upgrade authority, bytecode hash
+    history.ts            // upgrade transaction history
+    verified-build.ts     // OtterSec verify API
+    anchor-idl.ts         // Anchor IDL fetch
+  mint/
+    info.ts               // mint + all Token-2022 extensions
+  authority/
+    classify.ts           // pubkey -> AuthorityHolder
+    squads.ts             // Squads multisig detection
+    governance.ts         // SPL Governance detection
+</code></pre>
+
+<h3>Module specs</h3>
+
+<h4>src/rpc.ts</h4>
+<p>Exports <code>createConnection(rpcUrl?: string): Connection</code>. Resolves URL from arg or <code>RPC_URL</code> env. Throws if neither is set.</p>
+
+<h4>src/program/info.ts</h4>
+<p>Function <code>getProgramInfo(conn, programId)</code>:</p>
+<ol>
+  <li>Call <code>conn.getAccountInfo(programId)</code>. Confirm <code>executable === true</code>. Identify loader from <code>owner</code>:
+    <ul>
+      <li><code>BPFLoader1111111111111111111111111111111111</code> → v1 (immutable, no upgrade authority)</li>
+      <li><code>BPFLoader2111111111111111111111111111111111</code> → v2 (immutable)</li>
+      <li><code>BPFLoaderUpgradeab1e11111111111111111111111</code> → v3</li>
+      <li><code>LoaderV411111111111111111111111111111111111</code> → v4</li>
+    </ul>
+  </li>
+  <li>For v3: derive ProgramData PDA from <code>[programId.toBuffer()]</code> under the loader. Fetch its account.</li>
+  <li>Parse ProgramData bytes:
+    <ul>
+      <li>Bytes 0..4: discriminator (must be <code>3</code>)</li>
+      <li>Bytes 4..12: <code>slot</code> (u64 LE) → <code>lastDeployedSlot</code></li>
+      <li>Byte 12: Option discriminator for upgrade authority (0 = None, 1 = Some)</li>
+      <li>Bytes 13..45 (if Some): upgrade authority pubkey</li>
+      <li>Bytes 45..: ELF bytecode</li>
+    </ul>
+  </li>
+  <li>Compute <code>sha256</code> over the bytecode region. Use Node's <code>crypto.createHash</code>.</li>
+  <li>For v4: similar logic but different account layout — defer to <code>@solana/web3.js</code> helpers or treat as out of scope for v1 (return a stub and log a warning).</li>
+  <li>For v1/v2: <code>upgradeAuthority.pubkey = null</code>, mark loader as immutable.</li>
+</ol>
+
+<h4>src/program/history.ts</h4>
+<p>Function <code>getUpgradeHistory(conn, programDataAddress, limit = 100)</code>:</p>
+<ol>
+  <li><code>conn.getSignaturesForAddress(programDataAddress, { limit })</code>.</li>
+  <li>For each signature, fetch the transaction with <code>conn.getParsedTransaction(sig, { maxSupportedTransactionVersion: 0 })</code>.</li>
+  <li>Filter instructions where <code>programId</code> is the BPF Loader Upgradeable and the instruction is an <code>Upgrade</code> or <code>DeployWithMaxDataLen</code>.</li>
+  <li>Extract slot, fee payer (typically the upgrade authority signer), and tx signature.</li>
+  <li>Return chronologically ascending.</li>
+</ol>
+<p>Note: rate limits will be hit on public RPC. Paginate via the <code>before</code> parameter if needed. If history is unavailable, return an empty array and set a warning field in the report.</p>
+
+<h4>src/program/verified-build.ts</h4>
+<p>Function <code>getVerifiedBuild(programId)</code>:</p>
+<ol>
+  <li><code>fetch("https://verify.osec.io/status/" + programId)</code>.</li>
+  <li>Parse with zod against expected shape. Handle 404 (not verified) and 5xx (API down).</li>
+  <li>Return <code>{ verified: boolean, repoUrl?, commit?, verifiedAt? }</code>.</li>
+</ol>
+
+<h4>src/program/anchor-idl.ts</h4>
+<p>Function <code>getAnchorIdl(conn, programId)</code>:</p>
+<ol>
+  <li>Anchor IDL PDA: <code>findProgramAddressSync([], programId)</code> gives a base; the actual IDL account is derived as <code>createWithSeed(base, "anchor:idl", programId)</code>.</li>
+  <li>Easier path: use <code>anchor.Program.fetchIdl(programId, provider)</code> with a minimal provider built from <code>conn</code>.</li>
+  <li>If the IDL account doesn't exist, return <code>{ present: false }</code>.</li>
+  <li>If present, extract <code>name</code>, <code>version</code> (from metadata if available), and instruction names.</li>
+</ol>
+
+<h4>src/mint/info.ts</h4>
+<p>Function <code>getMintInfo(conn, mintAddress)</code>:</p>
+<ol>
+  <li><code>getMint(conn, mintAddress, "confirmed", TOKEN_2022_PROGRAM_ID)</code> from <code>@solana/spl-token</code>.</li>
+  <li>Reject if the mint's owner is not the Token-2022 program.</li>
+  <li>For each known extension type, call the matching getter from <code>@solana/spl-token</code>:
+    <ul>
+      <li><code>getTransferFeeConfig</code></li>
+      <li><code>getMintCloseAuthority</code></li>
+      <li><code>getPermanentDelegate</code></li>
+      <li><code>getInterestBearingMintConfigState</code></li>
+      <li><code>getDefaultAccountState</code></li>
+      <li><code>getTransferHook</code></li>
+      <li><code>getMetadataPointerState</code></li>
+      <li><code>getGroupPointerState</code></li>
+      <li><code>getGroupMemberPointerState</code></li>
+      <li><code>getTokenMetadata</code></li>
+      <li><code>getPausableConfig</code> (if available in installed SDK version)</li>
+      <li><code>getScaledUiAmountConfig</code> (if available)</li>
+      <li><code>getConfidentialTransferMint</code></li>
+    </ul>
+  </li>
+  <li>Each getter returns <code>null</code> if the extension is absent. Skip nulls.</li>
+  <li>Build the <code>extensions</code> array with each non-null extension's type and its authority/delegate field.</li>
+</ol>
+
+<h4>src/authority/classify.ts</h4>
+<p>Function <code>classifyAuthority(conn, pubkey | null): Promise&lt;AuthorityHolder&gt;</code>:</p>
+<ol>
+  <li>If <code>pubkey</code> is null → return <code>{ pubkey: null, classification: "none" }</code>.</li>
+  <li>Compute <code>onCurve = PublicKey.isOnCurve(pubkey)</code>.</li>
+  <li><code>conn.getAccountInfo(pubkey)</code>.</li>
+  <li>If account does not exist:
+    <ul>
+      <li><code>onCurve === true</code> → <code>classification: "unfunded_eoa"</code></li>
+      <li><code>onCurve === false</code> → still report as non-existent; this is anomalous for a PDA</li>
+    </ul>
+  </li>
+  <li>If account exists, branch on <code>owner</code>:
+    <ul>
+      <li><code>11111111111111111111111111111111</code> (System Program) → <code>"eoa"</code></li>
+      <li>Squads program ID (<code>SQDS...</code>, see <code>@sqds/multisig</code> constants) → <code>"squads_multisig"</code>. Fetch the multisig account and populate <code>details</code> with threshold and member count.</li>
+      <li>SPL Governance program ID (<code>GovER5Lthms3bLBqWub97yVrMmEogzX7xNjdXpPPCVZw</code>) → <code>"spl_governance"</code>. Populate <code>details</code> with realm.</li>
+      <li>Anything else → <code>"program_owned_other"</code> with <code>owner</code> recorded for follow-up.</li>
+    </ul>
+  </li>
+  <li>Always populate <code>exists</code>, <code>onCurve</code>, <code>owner</code>, <code>lamports</code>.</li>
+</ol>
+
+<h4>src/cli.ts</h4>
+<p>Uses <code>commander</code> to parse args. Calls each module in parallel where possible (program info, mint info, verified build, IDL can all run concurrently). After all complete, walks the result tree, collects unique authority pubkeys, classifies each once (memoized), substitutes <code>AuthorityHolder</code> objects in place, writes JSON output, and prints a summary to stdout.</p>
+
+<h2>7. Example invocation</h2>
+
+<p>Audit the USDK transfer-hook stablecoin on Solana mainnet:</p>
+
+<pre><code># Program (transfer hook) and mint addresses
+export PROGRAM_ID=extaykYu5AQcDm3qZAbiDN3yp6skqn6Nssj7veUUGZw
+export MINT_ID=usdkbee86pkLyRmxfFCdkyySpxRb5ndCxVsK2BkRXwX
+export RPC_URL=https://mainnet.helius-rpc.com/?api-key=YOUR_KEY
+
+# Run via tsx during development
+pnpm dev --program $PROGRAM_ID --mint $MINT_ID
+
+# Or after build
+pnpm build
+pnpm start --program $PROGRAM_ID --mint $MINT_ID --out usdk-audit.json
+</code></pre>
+
+<p>Expected behavior:</p>
+<ol>
+  <li>Tool fetches the program account, identifies the loader (expected: BPF Loader v3 based on deployment patterns for hook programs).</li>
+  <li>Derives ProgramData, extracts upgrade authority pubkey, computes bytecode hash.</li>
+  <li>Fetches the mint, identifies it as Token-2022, enumerates extensions. Expected to find at minimum a <code>TransferHook</code> extension with <code>programId === extaykYu5AQcDm3qZAbiDN3yp6skqn6Nssj7veUUGZw</code>.</li>
+  <li>Classifies the upgrade authority of the hook program, the mint authority, freeze authority, transfer hook authority, and any other extension authorities present.</li>
+  <li>Queries OtterSec for verified build status of the hook program.</li>
+  <li>Attempts to fetch an Anchor IDL.</li>
+  <li>Writes the report to <code>usdk-audit.json</code>.</li>
+</ol>
+
+<p>Reviewer's next step is to open the JSON, focus on every <code>AuthorityHolder</code> with <code>classification: "eoa"</code> or <code>"unfunded_eoa"</code>, and treat those as findings to investigate.</p>
+
+<h2>8. Acceptance criteria</h2>
+
+<ul>
+  <li>Running <code>pnpm dev --program &lt;P&gt; --mint &lt;M&gt;</code> against the example USDK pair produces a JSON file with non-empty <code>program</code> and <code>mint</code> objects within 30 seconds on a Helius free-tier endpoint.</li>
+  <li>Every authority field in the output is either <code>null</code> (with <code>classification: "none"</code>) or a fully populated <code>AuthorityHolder</code>.</li>
+  <li>No <code>AuthorityHolder</code> has <code>classification</code> set to a value outside the enum.</li>
+  <li><code>pnpm typecheck</code> passes with zero errors under <code>strict: true</code>.</li>
+  <li><code>pnpm test</code> passes. Tests must cover: ProgramData byte parsing, Option discriminator handling, classification branching by owner, missing-account handling, and OtterSec 404 handling.</li>
+  <li>Tool exits non-zero with a clear error if the mint is not owned by Token-2022, or if the program account is not executable.</li>
+  <li>Re-running the tool against the same inputs at the same slot produces byte-identical JSON output (modulo <code>auditedAt</code> timestamp).</li>
+</ul>
+
+<h2>9. Out-of-scope / future work</h2>
+
+<ul>
+  <li>Classic SPL Token mint support.</li>
+  <li>Loader v4 full support (currently stubbed).</li>
+  <li>Recursive authority resolution (e.g., if a Squads multisig is itself controlled by a DAO, resolve that layer too).</li>
+  <li>Diff mode: compare two reports and highlight changed authorities.</li>
+  <li>Webhook integration for ongoing monitoring.</li>
+  <li>HTML report rendering.</li>
+</ul>
+
+<h2>10. References</h2>
+
+<ul>
+  <li>Solana program model and loaders: <a href="https://solana.com/docs/core/programs">https://solana.com/docs/core/programs</a></li>
+  <li>Token-2022 extensions: <a href="https://www.solana-program.com/docs/token-2022/extensions">https://www.solana-program.com/docs/token-2022/extensions</a></li>
+  <li>Transfer Hook interface: <a href="https://spl.solana.com/transfer-hook-interface">https://spl.solana.com/transfer-hook-interface</a></li>
+  <li>OtterSec verified builds: <a href="https://verify.osec.io">https://verify.osec.io</a></li>
+  <li>Squads multisig SDK: <code>@sqds/multisig</code> on npm</li>
+  <li>SPL Governance: <a href="https://github.com/solana-program/governance">https://github.com/solana-program/governance</a></li>
+</ul>
+
+</body>
+</html>
