@@ -1,0 +1,23 @@
+{
+  "name": "admin_check",
+  "version": "1.0.0",
+  "description": "Check DEFAULT_ADMIN_ROLE holders for deployed M0 contracts",
+  "main": "index.js",
+  "scripts": {
+    "start": "node index.js"
+  },
+  "dependencies": {
+    "viem": "^2.41.2"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "devEngines": {
+    "packageManager": {
+      "name": "pnpm",
+      "version": "^11.0.5",
+      "onFail": "download"
+    }
+  },
+  "type": "module"
+}
