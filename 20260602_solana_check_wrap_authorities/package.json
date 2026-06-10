@@ -1,0 +1,23 @@
+{
+  "name": "svm_devnet_m_wrapper",
+  "version": "1.0.0",
+  "description": "Wrap $M tokens into extension tokens on Solana devnet",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "devEngines": {
+    "packageManager": {
+      "name": "pnpm",
+      "version": "^11.0.5",
+      "onFail": "download"
+    }
+  },
+  "type": "module",
+  "dependencies": {
+    "@solana/web3.js": "^1.98.4"
+  }
+}
