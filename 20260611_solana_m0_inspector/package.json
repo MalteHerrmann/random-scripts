@@ -1,0 +1,34 @@
+{
+  "name": "m0-solana-inspector",
+  "version": "0.1.0",
+  "description": "Read-only CLI that inspects M0 Solana deployments (portal / earn / m_ext / ext_swap) and reports wiring state and missing configuration",
+  "type": "module",
+  "bin": {
+    "m0-inspect": "dist/index.js"
+  },
+  "scripts": {
+    "build": "tsc",
+    "inspect": "tsx src/index.ts",
+    "typecheck": "tsc --noEmit"
+  },
+  "dependencies": {
+    "@coral-xyz/anchor": "^0.32.1",
+    "@solana/spl-token": "^0.4.13",
+    "@solana/web3.js": "^1.98.0",
+    "bs58": "^6.0.0",
+    "commander": "^12.1.0"
+  },
+  "pnpm": {
+    "onlyBuiltDependencies": [
+      "esbuild",
+      "bigint-buffer",
+      "bufferutil",
+      "utf-8-validate"
+    ]
+  },
+  "devDependencies": {
+    "@types/node": "^22.0.0",
+    "tsx": "^4.19.0",
+    "typescript": "^5.6.0"
+  }
+}

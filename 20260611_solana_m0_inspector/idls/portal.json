@@ -1,0 +1,3145 @@
+{
+  "address": "MzBrgc8yXBj4P16GTkcSyDZkEQZB9qDqf3fh9bByJce",
+  "metadata": {
+    "name": "portal",
+    "version": "0.1.0",
+    "spec": "0.1.0",
+    "description": "bridge program that interacts with bridge adapters"
+  },
+  "instructions": [
+    {
+      "name": "accept_admin",
+      "discriminator": [
+        112,
+        42,
+        45,
+        90,
+        116,
+        181,
+        13,
+        170
+      ],
+      "accounts": [
+        {
+          "name": "pending_admin",
+          "signer": true
+        },
+        {
+          "name": "portal_global",
+          "writable": true,
+          "pda": {
+            "seeds": [
+              {
+                "kind": "const",
+                "value": [
+                  103,
+                  108,
+                  111,
+                  98,
+                  97,
+                  108
+                ]
+              }
+            ]
+          }
+        }
+      ],
+      "args": []
+    },
+    {
+      "name": "add_bridge_paths",
+      "discriminator": [
+        55,
+        71,
+        77,
+        148,
+        164,
+        233,
+        15,
+        185
+      ],
+      "accounts": [
+        {
+          "name": "admin",
+          "writable": true,
+          "signer": true,
+          "relations": [
+            "portal_global"
+          ]
+        },
+        {
+          "name": "portal_global",
+          "pda": {
+            "seeds": [
+              {
+                "kind": "const",
+                "value": [
+                  103,
+                  108,
+                  111,
+                  98,
+                  97,
+                  108
+                ]
+              }
+            ]
+          }
+        },
+        {
+          "name": "chain_paths",
+          "writable": true,
+          "pda": {
+            "seeds": [
+              {
+                "kind": "const",
+                "value": [
+                  99,
+                  104,
+                  97,
+                  105,
+                  110,
+                  95,
+                  112,
+                  97,
+                  116,
+                  104,
+                  115
+                ]
+              },
+              {
+                "kind": "arg",
+                "path": "destination_chain_id"
+              }
+            ]
+          }
+        },
+        {
+          "name": "system_program",
+          "address": "11111111111111111111111111111111"
+        }
+      ],
+      "args": [
+        {
+          "name": "destination_chain_id",
+          "type": "u32"
+        },
+        {
+          "name": "paths",
+          "type": {
+            "vec": {
+              "defined": {
+                "name": "BridgePath"
+              }
+            }
+          }
+        }
+      ]
+    },
+    {
+      "name": "cancel_admin_transfer",
+      "discriminator": [
+        38,
+        131,
+        157,
+        31,
+        240,
+        137,
+        44,
+        215
+      ],
+      "accounts": [
+        {
+          "name": "admin",
+          "signer": true,
+          "relations": [
+            "portal_global"
+          ]
+        },
+        {
+          "name": "portal_global",
+          "writable": true,
+          "pda": {
+            "seeds": [
+              {
+                "kind": "const",
+                "value": [
+                  103,
+                  108,
+                  111,
+                  98,
+                  97,
+                  108
+                ]
+              }
+            ]
+          }
+        }
+      ],
+      "args": []
+    },
+    {
+      "name": "enable_cross_spoke_transfers",
+      "discriminator": [
+        14,
+        140,
+        28,
+        89,
+        160,
+        182,
+        179,
+        141
+      ],
+      "accounts": [
+        {
+          "name": "admin",
+          "signer": true,
+          "relations": [
+            "portal_global"
+          ]
+        },
+        {
+          "name": "portal_global",
+          "writable": true,
+          "pda": {
+            "seeds": [
+              {
+                "kind": "const",
+                "value": [
+                  103,
+                  108,
+                  111,
+                  98,
+                  97,
+                  108
+                ]
+              }
+            ]
+          }
+        }
+      ],
+      "args": []
+    },
+    {
+      "name": "initialize",
+      "docs": [
+        "Admin Instructions"
+      ],
+      "discriminator": [
+        175,
+        175,
+        109,
+        31,
+        13,
+        152,
+        155,
+        237
+      ],
+      "accounts": [
+        {
+          "name": "admin",
+          "writable": true,
+          "signer": true
+        },
+        {
+          "name": "portal_global",
+          "writable": true,
+          "pda": {
+            "seeds": [
+              {
+                "kind": "const",
+                "value": [
+                  103,
+                  108,
+                  111,
+                  98,
+                  97,
+                  108
+                ]
+              }
+            ]
+          }
+        },
+        {
+          "name": "earn_global",
+          "pda": {
+            "seeds": [
+              {
+                "kind": "const",
+                "value": [
+                  103,
+                  108,
+                  111,
+                  98,
+                  97,
+                  108
+                ]
+              }
+            ],
+            "program": {
+              "kind": "const",
+              "value": [
+                11,
+                134,
+                11,
+                7,
+                229,
+                245,
+                33,
+                49,
+                225,
+                170,
+                183,
+                171,
+                210,
+                177,
+                147,
+                110,
+                166,
+                55,
+                182,
+                49,
+                97,
+                242,
+                35,
+                170,
+                152,
+                135,
+                152,
+                108,
+                102,
+                78,
+                112,
+                208
+              ]
+            }
+          }
+        },
+        {
+          "name": "system_program",
+          "address": "11111111111111111111111111111111"
+        }
+      ],
+      "args": [
+        {
+          "name": "chain_id",
+          "type": "u32"
+        },
+        {
+          "name": "isolated_hub_chain_id",
+          "type": {
+            "option": "u32"
+          }
+        }
+      ]
+    },
+    {
+      "name": "initialize_bridge_paths",
+      "docs": [
+        "Bridge Path Configuration Instructions"
+      ],
+      "discriminator": [
+        88,
+        20,
+        96,
+        22,
+        169,
+        6,
+        26,
+        82
+      ],
+      "accounts": [
+        {
+          "name": "admin",
+          "writable": true,
+          "signer": true,
+          "relations": [
+            "portal_global"
+          ]
+        },
+        {
+          "name": "portal_global",
+          "pda": {
+            "seeds": [
+              {
+                "kind": "const",
+                "value": [
+                  103,
+                  108,
+                  111,
+                  98,
+                  97,
+                  108
+                ]
+              }
+            ]
+          }
+        },
+        {
+          "name": "chain_paths",
+          "writable": true,
+          "pda": {
+            "seeds": [
+              {
+                "kind": "const",
+                "value": [
+                  99,
+                  104,
+                  97,
+                  105,
+                  110,
+                  95,
+                  112,
+                  97,
+                  116,
+                  104,
+                  115
+                ]
+              },
+              {
+                "kind": "arg",
+                "path": "destination_chain_id"
+              }
+            ]
+          }
+        },
+        {
+          "name": "system_program",
+          "address": "11111111111111111111111111111111"
+        }
+      ],
+      "args": [
+        {
+          "name": "destination_chain_id",
+          "type": "u32"
+        }
+      ]
+    },
+    {
+      "name": "pause_incoming",
+      "discriminator": [
+        159,
+        50,
+        214,
+        15,
+        183,
+        226,
+        174,
+        196
+      ],
+      "accounts": [
+        {
+          "name": "admin",
+          "signer": true,
+          "relations": [
+            "portal_global"
+          ]
+        },
+        {
+          "name": "portal_global",
+          "writable": true,
+          "pda": {
+            "seeds": [
+              {
+                "kind": "const",
+                "value": [
+                  103,
+                  108,
+                  111,
+                  98,
+                  97,
+                  108
+                ]
+              }
+            ]
+          }
+        }
+      ],
+      "args": []
+    },
+    {
+      "name": "pause_outgoing",
+      "discriminator": [
+        254,
+        51,
+        37,
+        160,
+        105,
+        61,
+        204,
+        223
+      ],
+      "accounts": [
+        {
+          "name": "admin",
+          "signer": true,
+          "relations": [
+            "portal_global"
+          ]
+        },
+        {
+          "name": "portal_global",
+          "writable": true,
+          "pda": {
+            "seeds": [
+              {
+                "kind": "const",
+                "value": [
+                  103,
+                  108,
+                  111,
+                  98,
+                  97,
+                  108
+                ]
+              }
+            ]
+          }
+        }
+      ],
+      "args": []
+    },
+    {
+      "name": "propose_admin",
+      "discriminator": [
+        121,
+        214,
+        199,
+        212,
+        87,
+        39,
+        117,
+        234
+      ],
+      "accounts": [
+        {
+          "name": "admin",
+          "signer": true,
+          "relations": [
+            "portal_global"
+          ]
+        },
+        {
+          "name": "portal_global",
+          "writable": true,
+          "pda": {
+            "seeds": [
+              {
+                "kind": "const",
+                "value": [
+                  103,
+                  108,
+                  111,
+                  98,
+                  97,
+                  108
+                ]
+              }
+            ]
+          }
+        }
+      ],
+      "args": [
+        {
+          "name": "new_admin",
+          "type": "pubkey"
+        }
+      ]
+    },
+    {
+      "name": "receive_message",
+      "docs": [
+        "Inbound Instructions"
+      ],
+      "discriminator": [
+        38,
+        144,
+        127,
+        225,
+        31,
+        225,
+        238,
+        25
+      ],
+      "accounts": [
+        {
+          "name": "payer",
+          "writable": true,
+          "signer": true
+        },
+        {
+          "name": "portal_global",
+          "writable": true,
+          "pda": {
+            "seeds": [
+              {
+                "kind": "const",
+                "value": [
+                  103,
+                  108,
+                  111,
+                  98,
+                  97,
+                  108
+                ]
+              }
+            ]
+          }
+        },
+        {
+          "name": "adapter_authority",
+          "signer": true
+        },
+        {
+          "name": "message_account",
+          "writable": true,
+          "pda": {
+            "seeds": [
+              {
+                "kind": "const",
+                "value": [
+                  109,
+                  101,
+                  115,
+                  115,
+                  97,
+                  103,
+                  101
+                ]
+              },
+              {
+                "kind": "arg",
+                "path": "message_id"
+              }
+            ]
+          }
+        },
+        {
+          "name": "portal_authority",
+          "pda": {
+            "seeds": [
+              {
+                "kind": "const",
+                "value": [
+                  97,
+                  117,
+                  116,
+                  104,
+                  111,
+                  114,
+                  105,
+                  116,
+                  121
+                ]
+              }
+            ]
+          }
+        },
+        {
+          "name": "earn_global",
+          "writable": true,
+          "pda": {
+            "seeds": [
+              {
+                "kind": "const",
+                "value": [
+                  103,
+                  108,
+                  111,
+                  98,
+                  97,
+                  108
+                ]
+              }
+            ],
+            "program": {
+              "kind": "const",
+              "value": [
+                11,
+                134,
+                11,
+                7,
+                229,
+                245,
+                33,
+                49,
+                225,
+                170,
+                183,
+                171,
+                210,
+                177,
+                147,
+                110,
+                166,
+                55,
+                182,
+                49,
+                97,
+                242,
+                35,
+                170,
+                152,
+                135,
+                152,
+                108,
+                102,
+                78,
+                112,
+                208
+              ]
+            }
+          }
+        },
+        {
+          "name": "m_mint",
+          "writable": true
+        },
+        {
+          "name": "m_token_program",
+          "address": "TokenzQdBNbLqP5VEhdkAS6EPFLC1PHnBqCXEpPxuEb"
+        },
+        {
+          "name": "earn_program",
+          "address": "mz2vDzjbQDUDXBH6FPF5s4odCJ4y8YLE5QWaZ8XdZ9Z"
+        },
+        {
+          "name": "system_program",
+          "address": "11111111111111111111111111111111"
+        }
+      ],
+      "args": [
+        {
+          "name": "message_id",
+          "type": {
+            "array": [
+              "u8",
+              32
+            ]
+          }
+        },
+        {
+          "name": "source_chain_id",
+          "type": "u32"
+        },
+        {
+          "name": "payload",
+          "type": "bytes"
+        }
+      ]
+    },
+    {
+      "name": "remove_bridge_path",
+      "discriminator": [
+        72,
+        202,
+        104,
+        24,
+        227,
+        65,
+        72,
+        4
+      ],
+      "accounts": [
+        {
+          "name": "admin",
+          "writable": true,
+          "signer": true,
+          "relations": [
+            "portal_global"
+          ]
+        },
+        {
+          "name": "portal_global",
+          "pda": {
+            "seeds": [
+              {
+                "kind": "const",
+                "value": [
+                  103,
+                  108,
+                  111,
+                  98,
+                  97,
+                  108
+                ]
+              }
+            ]
+          }
+        },
+        {
+          "name": "chain_paths",
+          "writable": true,
+          "pda": {
+            "seeds": [
+              {
+                "kind": "const",
+                "value": [
+                  99,
+                  104,
+                  97,
+                  105,
+                  110,
+                  95,
+                  112,
+                  97,
+                  116,
+                  104,
+                  115
+                ]
+              },
+              {
+                "kind": "arg",
+                "path": "destination_chain_id"
+              }
+            ]
+          }
+        },
+        {
+          "name": "system_program",
+          "address": "11111111111111111111111111111111"
+        }
+      ],
+      "args": [
+        {
+          "name": "destination_chain_id",
+          "type": "u32"
+        },
+        {
+          "name": "path",
+          "type": {
+            "defined": {
+              "name": "BridgePath"
+            }
+          }
+        }
+      ]
+    },
+    {
+      "name": "send_cancel_report",
+      "discriminator": [
+        104,
+        117,
+        129,
+        240,
+        158,
+        223,
+        191,
+        180
+      ],
+      "accounts": [
+        {
+          "name": "sender",
+          "writable": true,
+          "signer": true
+        },
+        {
+          "name": "order_book_global",
+          "docs": [
+            "Only order_book can send fill reports"
+          ],
+          "writable": true,
+          "signer": true,
+          "pda": {
+            "seeds": [
+              {
+                "kind": "const",
+                "value": [
+                  103,
+                  108,
+                  111,
+                  98,
+                  97,
+                  108
+                ]
+              }
+            ],
+            "program": {
+              "kind": "const",
+              "value": [
+                5,
+                96,
+                115,
+                204,
+                66,
+                167,
+                34,
+                205,
+                173,
+                199,
+                58,
+                223,
+                176,
+                231,
+                81,
+                240,
+                166,
+                247,
+                251,
+                65,
+                73,
+                214,
+                228,
+                4,
+                158,
+                133,
+                255,
+                10,
+                15,
+                109,
+                72,
+                196
+              ]
+            }
+          }
+        },
+        {
+          "name": "portal_global",
+          "writable": true,
+          "pda": {
+            "seeds": [
+              {
+                "kind": "const",
+                "value": [
+                  103,
+                  108,
+                  111,
+                  98,
+                  97,
+                  108
+                ]
+              }
+            ]
+          }
+        },
+        {
+          "name": "portal_authority",
+          "pda": {
+            "seeds": [
+              {
+                "kind": "const",
+                "value": [
+                  97,
+                  117,
+                  116,
+                  104,
+                  111,
+                  114,
+                  105,
+                  116,
+                  121
+                ]
+              }
+            ]
+          }
+        },
+        {
+          "name": "bridge_adapter"
+        },
+        {
+          "name": "system_program",
+          "address": "11111111111111111111111111111111"
+        }
+      ],
+      "args": [
+        {
+          "name": "order_id",
+          "type": {
+            "array": [
+              "u8",
+              32
+            ]
+          }
+        },
+        {
+          "name": "order_sender",
+          "type": {
+            "array": [
+              "u8",
+              32
+            ]
+          }
+        },
+        {
+          "name": "token_in",
+          "type": {
+            "array": [
+              "u8",
+              32
+            ]
+          }
+        },
+        {
+          "name": "amount_in_to_refund",
+          "type": "u128"
+        },
+        {
+          "name": "origin_chain_id",
+          "type": "u32"
+        }
+      ]
+    },
+    {
+      "name": "send_fill_report",
+      "discriminator": [
+        100,
+        127,
+        155,
+        94,
+        233,
+        58,
+        141,
+        240
+      ],
+      "accounts": [
+        {
+          "name": "sender",
+          "writable": true,
+          "signer": true
+        },
+        {
+          "name": "order_book_global",
+          "docs": [
+            "Only order_book can send fill reports"
+          ],
+          "writable": true,
+          "signer": true,
+          "pda": {
+            "seeds": [
+              {
+                "kind": "const",
+                "value": [
+                  103,
+                  108,
+                  111,
+                  98,
+                  97,
+                  108
+                ]
+              }
+            ],
+            "program": {
+              "kind": "const",
+              "value": [
+                5,
+                96,
+                115,
+                204,
+                66,
+                167,
+                34,
+                205,
+                173,
+                199,
+                58,
+                223,
+                176,
+                231,
+                81,
+                240,
+                166,
+                247,
+                251,
+                65,
+                73,
+                214,
+                228,
+                4,
+                158,
+                133,
+                255,
+                10,
+                15,
+                109,
+                72,
+                196
+              ]
+            }
+          }
+        },
+        {
+          "name": "portal_global",
+          "writable": true,
+          "pda": {
+            "seeds": [
+              {
+                "kind": "const",
+                "value": [
+                  103,
+                  108,
+                  111,
+                  98,
+                  97,
+                  108
+                ]
+              }
+            ]
+          }
+        },
+        {
+          "name": "portal_authority",
+          "pda": {
+            "seeds": [
+              {
+                "kind": "const",
+                "value": [
+                  97,
+                  117,
+                  116,
+                  104,
+                  111,
+                  114,
+                  105,
+                  116,
+                  121
+                ]
+              }
+            ]
+          }
+        },
+        {
+          "name": "bridge_adapter"
+        },
+        {
+          "name": "system_program",
+          "address": "11111111111111111111111111111111"
+        }
+      ],
+      "args": [
+        {
+          "name": "order_id",
+          "type": {
+            "array": [
+              "u8",
+              32
+            ]
+          }
+        },
+        {
+          "name": "token_in",
+          "type": {
+            "array": [
+              "u8",
+              32
+            ]
+          }
+        },
+        {
+          "name": "amount_in_to_release",
+          "type": "u128"
+        },
+        {
+          "name": "amount_out_filled",
+          "type": "u128"
+        },
+        {
+          "name": "origin_recipient",
+          "type": {
+            "array": [
+              "u8",
+              32
+            ]
+          }
+        },
+        {
+          "name": "origin_chain_id",
+          "type": "u32"
+        }
+      ]
+    },
+    {
+      "name": "send_index",
+      "docs": [
+        "Outbound Instructions"
+      ],
+      "discriminator": [
+        92,
+        203,
+        229,
+        128,
+        118,
+        111,
+        243,
+        53
+      ],
+      "accounts": [
+        {
+          "name": "sender",
+          "writable": true,
+          "signer": true
+        },
+        {
+          "name": "portal_global",
+          "writable": true,
+          "pda": {
+            "seeds": [
+              {
+                "kind": "const",
+                "value": [
+                  103,
+                  108,
+                  111,
+                  98,
+                  97,
+                  108
+                ]
+              }
+            ]
+          }
+        },
+        {
+          "name": "portal_authority",
+          "pda": {
+            "seeds": [
+              {
+                "kind": "const",
+                "value": [
+                  97,
+                  117,
+                  116,
+                  104,
+                  111,
+                  114,
+                  105,
+                  116,
+                  121
+                ]
+              }
+            ]
+          }
+        },
+        {
+          "name": "bridge_adapter"
+        },
+        {
+          "name": "system_program",
+          "address": "11111111111111111111111111111111"
+        }
+      ],
+      "args": [
+        {
+          "name": "destination_chain_id",
+          "type": "u32"
+        }
+      ]
+    },
+    {
+      "name": "send_merkle_root",
+      "discriminator": [
+        15,
+        184,
+        227,
+        45,
+        154,
+        255,
+        227,
+        63
+      ],
+      "accounts": [
+        {
+          "name": "sender",
+          "writable": true,
+          "signer": true
+        },
+        {
+          "name": "portal_global",
+          "writable": true,
+          "pda": {
+            "seeds": [
+              {
+                "kind": "const",
+                "value": [
+                  103,
+                  108,
+                  111,
+                  98,
+                  97,
+                  108
+                ]
+              }
+            ]
+          }
+        },
+        {
+          "name": "earn_global",
+          "pda": {
+            "seeds": [
+              {
+                "kind": "const",
+                "value": [
+                  103,
+                  108,
+                  111,
+                  98,
+                  97,
+                  108
+                ]
+              }
+            ],
+            "program": {
+              "kind": "const",
+              "value": [
+                11,
+                134,
+                11,
+                7,
+                229,
+                245,
+                33,
+                49,
+                225,
+                170,
+                183,
+                171,
+                210,
+                177,
+                147,
+                110,
+                166,
+                55,
+                182,
+                49,
+                97,
+                242,
+                35,
+                170,
+                152,
+                135,
+                152,
+                108,
+                102,
+                78,
+                112,
+                208
+              ]
+            }
+          }
+        },
+        {
+          "name": "portal_authority",
+          "pda": {
+            "seeds": [
+              {
+                "kind": "const",
+                "value": [
+                  97,
+                  117,
+                  116,
+                  104,
+                  111,
+                  114,
+                  105,
+                  116,
+                  121
+                ]
+              }
+            ]
+          }
+        },
+        {
+          "name": "bridge_adapter"
+        },
+        {
+          "name": "system_program",
+          "address": "11111111111111111111111111111111"
+        }
+      ],
+      "args": [
+        {
+          "name": "destination_chain_id",
+          "type": "u32"
+        }
+      ]
+    },
+    {
+      "name": "send_token",
+      "discriminator": [
+        157,
+        183,
+        177,
+        53,
+        196,
+        251,
+        54,
+        185
+      ],
+      "accounts": [
+        {
+          "name": "sender",
+          "writable": true,
+          "signer": true
+        },
+        {
+          "name": "portal_global",
+          "writable": true,
+          "pda": {
+            "seeds": [
+              {
+                "kind": "const",
+                "value": [
+                  103,
+                  108,
+                  111,
+                  98,
+                  97,
+                  108
+                ]
+              }
+            ]
+          }
+        },
+        {
+          "name": "swap_global",
+          "pda": {
+            "seeds": [
+              {
+                "kind": "const",
+                "value": [
+                  103,
+                  108,
+                  111,
+                  98,
+                  97,
+                  108
+                ]
+              }
+            ],
+            "program": {
+              "kind": "const",
+              "value": [
+                5,
+                60,
+                242,
+                167,
+                56,
+                11,
+                17,
+                54,
+                97,
+                114,
+                227,
+                114,
+                39,
+                167,
+                101,
+                13,
+                161,
+                190,
+                235,
+                218,
+                112,
+                220,
+                127,
+                89,
+                126,
+                174,
+                151,
+                23,
+                37,
+                130,
+                35,
+                190
+              ]
+            }
+          }
+        },
+        {
+          "name": "chain_paths",
+          "pda": {
+            "seeds": [
+              {
+                "kind": "const",
+                "value": [
+                  99,
+                  104,
+                  97,
+                  105,
+                  110,
+                  95,
+                  112,
+                  97,
+                  116,
+                  104,
+                  115
+                ]
+              },
+              {
+                "kind": "arg",
+                "path": "destination_chain_id"
+              }
+            ]
+          }
+        },
+        {
+          "name": "extension_global",
+          "writable": true,
+          "pda": {
+            "seeds": [
+              {
+                "kind": "const",
+                "value": [
+                  103,
+                  108,
+                  111,
+                  98,
+                  97,
+                  108
+                ]
+              }
+            ],
+            "program": {
+              "kind": "account",
+              "path": "extension_program"
+            }
+          }
+        },
+        {
+          "name": "m_mint",
+          "writable": true,
+          "relations": [
+            "portal_global"
+          ]
+        },
+        {
+          "name": "extension_mint",
+          "writable": true
+        },
+        {
+          "name": "m_token_account",
+          "writable": true,
+          "pda": {
+            "seeds": [
+              {
+                "kind": "account",
+                "path": "portal_authority"
+              },
+              {
+                "kind": "account",
+                "path": "m_token_program"
+              },
+              {
+                "kind": "account",
+                "path": "m_mint"
+              }
+            ],
+            "program": {
+              "kind": "const",
+              "value": [
+                140,
+                151,
+                37,
+                143,
+                78,
+                36,
+                137,
+                241,
+                187,
+                61,
+                16,
+                41,
+                20,
+                142,
+                13,
+                131,
+                11,
+                90,
+                19,
+                153,
+                218,
+                255,
+                16,
+                132,
+                4,
+                142,
+                123,
+                216,
+                219,
+                233,
+                248,
+                89
+              ]
+            }
+          }
+        },
+        {
+          "name": "extension_token_account",
+          "writable": true
+        },
+        {
+          "name": "portal_authority",
+          "pda": {
+            "seeds": [
+              {
+                "kind": "const",
+                "value": [
+                  97,
+                  117,
+                  116,
+                  104,
+                  111,
+                  114,
+                  105,
+                  116,
+                  121
+                ]
+              }
+            ]
+          }
+        },
+        {
+          "name": "ext_m_vault",
+          "writable": true,
+          "pda": {
+            "seeds": [
+              {
+                "kind": "account",
+                "path": "ext_m_vault_auth"
+              },
+              {
+                "kind": "account",
+                "path": "m_token_program"
+              },
+              {
+                "kind": "account",
+                "path": "m_mint"
+              }
+            ],
+            "program": {
+              "kind": "const",
+              "value": [
+                140,
+                151,
+                37,
+                143,
+                78,
+                36,
+                137,
+                241,
+                187,
+                61,
+                16,
+                41,
+                20,
+                142,
+                13,
+                131,
+                11,
+                90,
+                19,
+                153,
+                218,
+                255,
+                16,
+                132,
+                4,
+                142,
+                123,
+                216,
+                219,
+                233,
+                248,
+                89
+              ]
+            }
+          }
+        },
+        {
+          "name": "ext_m_vault_auth",
+          "pda": {
+            "seeds": [
+              {
+                "kind": "const",
+                "value": [
+                  109,
+                  95,
+                  118,
+                  97,
+                  117,
+                  108,
+                  116
+                ]
+              }
+            ],
+            "program": {
+              "kind": "account",
+              "path": "extension_program"
+            }
+          }
+        },
+        {
+          "name": "ext_mint_authority",
+          "pda": {
+            "seeds": [
+              {
+                "kind": "const",
+                "value": [
+                  109,
+                  105,
+                  110,
+                  116,
+                  95,
+                  97,
+                  117,
+                  116,
+                  104,
+                  111,
+                  114,
+                  105,
+                  116,
+                  121
+                ]
+              }
+            ],
+            "program": {
+              "kind": "account",
+              "path": "extension_program"
+            }
+          }
+        },
+        {
+          "name": "swap_program",
+          "address": "MSwapi3WhNKMUGm9YrxGhypgUEt7wYQH3ZgG32XoWzH"
+        },
+        {
+          "name": "extension_program"
+        },
+        {
+          "name": "m_token_program"
+        },
+        {
+          "name": "extension_token_program"
+        },
+        {
+          "name": "bridge_adapter"
+        },
+        {
+          "name": "system_program",
+          "address": "11111111111111111111111111111111"
+        }
+      ],
+      "args": [
+        {
+          "name": "amount",
+          "type": "u64"
+        },
+        {
+          "name": "destination_token",
+          "type": {
+            "array": [
+              "u8",
+              32
+            ]
+          }
+        },
+        {
+          "name": "destination_chain_id",
+          "type": "u32"
+        },
+        {
+          "name": "recipient",
+          "type": {
+            "array": [
+              "u8",
+              32
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "name": "unpause_incoming",
+      "discriminator": [
+        40,
+        3,
+        144,
+        42,
+        253,
+        44,
+        153,
+        249
+      ],
+      "accounts": [
+        {
+          "name": "admin",
+          "signer": true,
+          "relations": [
+            "portal_global"
+          ]
+        },
+        {
+          "name": "portal_global",
+          "writable": true,
+          "pda": {
+            "seeds": [
+              {
+                "kind": "const",
+                "value": [
+                  103,
+                  108,
+                  111,
+                  98,
+                  97,
+                  108
+                ]
+              }
+            ]
+          }
+        }
+      ],
+      "args": []
+    },
+    {
+      "name": "unpause_outgoing",
+      "discriminator": [
+        255,
+        24,
+        174,
+        235,
+        25,
+        115,
+        35,
+        11
+      ],
+      "accounts": [
+        {
+          "name": "admin",
+          "signer": true,
+          "relations": [
+            "portal_global"
+          ]
+        },
+        {
+          "name": "portal_global",
+          "writable": true,
+          "pda": {
+            "seeds": [
+              {
+                "kind": "const",
+                "value": [
+                  103,
+                  108,
+                  111,
+                  98,
+                  97,
+                  108
+                ]
+              }
+            ]
+          }
+        }
+      ],
+      "args": []
+    },
+    {
+      "name": "wrap_unclaimed",
+      "discriminator": [
+        123,
+        209,
+        241,
+        179,
+        169,
+        75,
+        253,
+        250
+      ],
+      "accounts": [
+        {
+          "name": "admin",
+          "signer": true,
+          "relations": [
+            "portal_global"
+          ]
+        },
+        {
+          "name": "portal_global",
+          "writable": true,
+          "pda": {
+            "seeds": [
+              {
+                "kind": "const",
+                "value": [
+                  103,
+                  108,
+                  111,
+                  98,
+                  97,
+                  108
+                ]
+              }
+            ]
+          }
+        },
+        {
+          "name": "swap_global",
+          "pda": {
+            "seeds": [
+              {
+                "kind": "const",
+                "value": [
+                  103,
+                  108,
+                  111,
+                  98,
+                  97,
+                  108
+                ]
+              }
+            ],
+            "program": {
+              "kind": "const",
+              "value": [
+                5,
+                60,
+                242,
+                167,
+                56,
+                11,
+                17,
+                54,
+                97,
+                114,
+                227,
+                114,
+                39,
+                167,
+                101,
+                13,
+                161,
+                190,
+                235,
+                218,
+                112,
+                220,
+                127,
+                89,
+                126,
+                174,
+                151,
+                23,
+                37,
+                130,
+                35,
+                190
+              ]
+            }
+          }
+        },
+        {
+          "name": "extension_global",
+          "writable": true,
+          "pda": {
+            "seeds": [
+              {
+                "kind": "const",
+                "value": [
+                  103,
+                  108,
+                  111,
+                  98,
+                  97,
+                  108
+                ]
+              }
+            ],
+            "program": {
+              "kind": "account",
+              "path": "extension_program"
+            }
+          }
+        },
+        {
+          "name": "portal_authority",
+          "pda": {
+            "seeds": [
+              {
+                "kind": "const",
+                "value": [
+                  97,
+                  117,
+                  116,
+                  104,
+                  111,
+                  114,
+                  105,
+                  116,
+                  121
+                ]
+              }
+            ]
+          }
+        },
+        {
+          "name": "authority_m_token_account",
+          "writable": true,
+          "pda": {
+            "seeds": [
+              {
+                "kind": "account",
+                "path": "portal_authority"
+              },
+              {
+                "kind": "account",
+                "path": "m_token_program"
+              },
+              {
+                "kind": "account",
+                "path": "m_mint"
+              }
+            ],
+            "program": {
+              "kind": "const",
+              "value": [
+                140,
+                151,
+                37,
+                143,
+                78,
+                36,
+                137,
+                241,
+                187,
+                61,
+                16,
+                41,
+                20,
+                142,
+                13,
+                131,
+                11,
+                90,
+                19,
+                153,
+                218,
+                255,
+                16,
+                132,
+                4,
+                142,
+                123,
+                216,
+                219,
+                233,
+                248,
+                89
+              ]
+            }
+          }
+        },
+        {
+          "name": "m_mint"
+        },
+        {
+          "name": "extension_mint"
+        },
+        {
+          "name": "recipient_token_account",
+          "writable": true
+        },
+        {
+          "name": "extension_m_vault",
+          "writable": true,
+          "pda": {
+            "seeds": [
+              {
+                "kind": "account",
+                "path": "extension_m_vault_authority"
+              },
+              {
+                "kind": "account",
+                "path": "m_token_program"
+              },
+              {
+                "kind": "account",
+                "path": "m_mint"
+              }
+            ],
+            "program": {
+              "kind": "const",
+              "value": [
+                140,
+                151,
+                37,
+                143,
+                78,
+                36,
+                137,
+                241,
+                187,
+                61,
+                16,
+                41,
+                20,
+                142,
+                13,
+                131,
+                11,
+                90,
+                19,
+                153,
+                218,
+                255,
+                16,
+                132,
+                4,
+                142,
+                123,
+                216,
+                219,
+                233,
+                248,
+                89
+              ]
+            }
+          }
+        },
+        {
+          "name": "extension_mint_authority",
+          "pda": {
+            "seeds": [
+              {
+                "kind": "const",
+                "value": [
+                  109,
+                  105,
+                  110,
+                  116,
+                  95,
+                  97,
+                  117,
+                  116,
+                  104,
+                  111,
+                  114,
+                  105,
+                  116,
+                  121
+                ]
+              }
+            ],
+            "program": {
+              "kind": "account",
+              "path": "extension_program"
+            }
+          }
+        },
+        {
+          "name": "extension_m_vault_authority",
+          "pda": {
+            "seeds": [
+              {
+                "kind": "const",
+                "value": [
+                  109,
+                  95,
+                  118,
+                  97,
+                  117,
+                  108,
+                  116
+                ]
+              }
+            ],
+            "program": {
+              "kind": "account",
+              "path": "extension_program"
+            }
+          }
+        },
+        {
+          "name": "m_token_program"
+        },
+        {
+          "name": "extension_token_program"
+        },
+        {
+          "name": "extension_program"
+        },
+        {
+          "name": "swap_program",
+          "address": "MSwapi3WhNKMUGm9YrxGhypgUEt7wYQH3ZgG32XoWzH"
+        },
+        {
+          "name": "system_program",
+          "address": "11111111111111111111111111111111"
+        }
+      ],
+      "args": [
+        {
+          "name": "amount",
+          "type": {
+            "option": "u64"
+          }
+        }
+      ]
+    }
+  ],
+  "accounts": [
+    {
+      "name": "BridgeMessage",
+      "discriminator": [
+        246,
+        111,
+        156,
+        126,
+        81,
+        14,
+        238,
+        152
+      ]
+    },
+    {
+      "name": "ChainBridgePaths",
+      "discriminator": [
+        89,
+        30,
+        178,
+        53,
+        154,
+        232,
+        75,
+        140
+      ]
+    },
+    {
+      "name": "EarnGlobal",
+      "discriminator": [
+        229,
+        50,
+        25,
+        132,
+        207,
+        93,
+        185,
+        23
+      ]
+    },
+    {
+      "name": "PortalGlobal",
+      "discriminator": [
+        83,
+        250,
+        129,
+        21,
+        172,
+        135,
+        20,
+        236
+      ]
+    },
+    {
+      "name": "SwapGlobal",
+      "discriminator": [
+        15,
+        184,
+        147,
+        129,
+        183,
+        219,
+        223,
+        163
+      ]
+    }
+  ],
+  "events": [
+    {
+      "name": "BridgePathAdded",
+      "discriminator": [
+        60,
+        60,
+        161,
+        230,
+        207,
+        42,
+        101,
+        174
+      ]
+    },
+    {
+      "name": "BridgePathRemoved",
+      "discriminator": [
+        245,
+        243,
+        242,
+        225,
+        230,
+        129,
+        158,
+        165
+      ]
+    },
+    {
+      "name": "CancelReportReceived",
+      "discriminator": [
+        139,
+        163,
+        1,
+        52,
+        99,
+        85,
+        7,
+        143
+      ]
+    },
+    {
+      "name": "CancelReportSent",
+      "discriminator": [
+        7,
+        35,
+        17,
+        164,
+        221,
+        120,
+        12,
+        31
+      ]
+    },
+    {
+      "name": "ChainPathsInitialized",
+      "discriminator": [
+        182,
+        96,
+        36,
+        123,
+        226,
+        44,
+        109,
+        244
+      ]
+    },
+    {
+      "name": "FillReportReceived",
+      "discriminator": [
+        101,
+        71,
+        41,
+        220,
+        125,
+        65,
+        44,
+        48
+      ]
+    },
+    {
+      "name": "FillReportSent",
+      "discriminator": [
+        127,
+        44,
+        168,
+        99,
+        163,
+        152,
+        5,
+        94
+      ]
+    },
+    {
+      "name": "MBalanceClaimed",
+      "discriminator": [
+        243,
+        168,
+        124,
+        70,
+        238,
+        205,
+        79,
+        145
+      ]
+    },
+    {
+      "name": "MBalanceStored",
+      "discriminator": [
+        123,
+        28,
+        142,
+        205,
+        171,
+        228,
+        140,
+        219
+      ]
+    },
+    {
+      "name": "MTokenIndexReceived",
+      "discriminator": [
+        8,
+        176,
+        76,
+        78,
+        200,
+        62,
+        28,
+        142
+      ]
+    },
+    {
+      "name": "TokenReceived",
+      "discriminator": [
+        251,
+        126,
+        204,
+        211,
+        2,
+        159,
+        194,
+        227
+      ]
+    },
+    {
+      "name": "TokenSent",
+      "discriminator": [
+        1,
+        10,
+        12,
+        13,
+        206,
+        47,
+        175,
+        162
+      ]
+    }
+  ],
+  "types": [
+    {
+      "name": "BridgeMessage",
+      "type": {
+        "kind": "struct",
+        "fields": [
+          {
+            "name": "consumed",
+            "type": "bool"
+          }
+        ]
+      }
+    },
+    {
+      "name": "BridgePath",
+      "docs": [
+        "Represents an allowed bridging path from a source token to a destination token"
+      ],
+      "type": {
+        "kind": "struct",
+        "fields": [
+          {
+            "name": "source_mint",
+            "docs": [
+              "Extension mint on Solana (e.g., wM mint pubkey)"
+            ],
+            "type": "pubkey"
+          },
+          {
+            "name": "destination_token",
+            "docs": [
+              "Token address on destination chain (e.g., Ethereum wM address)"
+            ],
+            "type": {
+              "array": [
+                "u8",
+                32
+              ]
+            }
+          }
+        ]
+      }
+    },
+    {
+      "name": "BridgePathAdded",
+      "type": {
+        "kind": "struct",
+        "fields": [
+          {
+            "name": "destination_chain_id",
+            "type": "u32"
+          },
+          {
+            "name": "source_mint",
+            "type": "pubkey"
+          },
+          {
+            "name": "destination_token",
+            "type": {
+              "array": [
+                "u8",
+                32
+              ]
+            }
+          }
+        ]
+      }
+    },
+    {
+      "name": "BridgePathRemoved",
+      "type": {
+        "kind": "struct",
+        "fields": [
+          {
+            "name": "destination_chain_id",
+            "type": "u32"
+          },
+          {
+            "name": "source_mint",
+            "type": "pubkey"
+          },
+          {
+            "name": "destination_token",
+            "type": {
+              "array": [
+                "u8",
+                32
+              ]
+            }
+          }
+        ]
+      }
+    },
+    {
+      "name": "CancelReportReceived",
+      "type": {
+        "kind": "struct",
+        "fields": [
+          {
+            "name": "source_chain_id",
+            "type": "u32"
+          },
+          {
+            "name": "bridge_adapter",
+            "type": "pubkey"
+          },
+          {
+            "name": "order_id",
+            "type": {
+              "array": [
+                "u8",
+                32
+              ]
+            }
+          },
+          {
+            "name": "order_sender",
+            "type": {
+              "array": [
+                "u8",
+                32
+              ]
+            }
+          },
+          {
+            "name": "token_in",
+            "type": {
+              "array": [
+                "u8",
+                32
+              ]
+            }
+          },
+          {
+            "name": "amount_in_to_refund",
+            "type": "u128"
+          },
+          {
+            "name": "message_id",
+            "type": {
+              "array": [
+                "u8",
+                32
+              ]
+            }
+          }
+        ]
+      }
+    },
+    {
+      "name": "CancelReportSent",
+      "type": {
+        "kind": "struct",
+        "fields": [
+          {
+            "name": "destination_chain_id",
+            "type": "u32"
+          },
+          {
+            "name": "bridge_adapter",
+            "type": "pubkey"
+          },
+          {
+            "name": "order_id",
+            "type": {
+              "array": [
+                "u8",
+                32
+              ]
+            }
+          },
+          {
+            "name": "order_sender",
+            "type": {
+              "array": [
+                "u8",
+                32
+              ]
+            }
+          },
+          {
+            "name": "token_in",
+            "type": {
+              "array": [
+                "u8",
+                32
+              ]
+            }
+          },
+          {
+            "name": "amount_in_to_refund",
+            "type": "u128"
+          }
+        ]
+      }
+    },
+    {
+      "name": "ChainBridgePaths",
+      "docs": [
+        "Per-destination-chain configuration of allowed bridging paths"
+      ],
+      "type": {
+        "kind": "struct",
+        "fields": [
+          {
+            "name": "bump",
+            "type": "u8"
+          },
+          {
+            "name": "destination_chain_id",
+            "type": "u32"
+          },
+          {
+            "name": "paths",
+            "type": {
+              "vec": {
+                "defined": {
+                  "name": "BridgePath"
+                }
+              }
+            }
+          }
+        ]
+      }
+    },
+    {
+      "name": "ChainPathsInitialized",
+      "type": {
+        "kind": "struct",
+        "fields": [
+          {
+            "name": "destination_chain_id",
+            "type": "u32"
+          }
+        ]
+      }
+    },
+    {
+      "name": "EarnGlobal",
+      "type": {
+        "kind": "struct",
+        "fields": [
+          {
+            "name": "admin",
+            "type": "pubkey"
+          },
+          {
+            "name": "m_mint",
+            "type": "pubkey"
+          },
+          {
+            "name": "portal_authority",
+            "type": "pubkey"
+          },
+          {
+            "name": "ext_swap_global_account",
+            "type": "pubkey"
+          },
+          {
+            "name": "earner_merkle_root",
+            "type": {
+              "array": [
+                "u8",
+                32
+              ]
+            }
+          },
+          {
+            "name": "bump",
+            "type": "u8"
+          }
+        ]
+      }
+    },
+    {
+      "name": "FillReportReceived",
+      "type": {
+        "kind": "struct",
+        "fields": [
+          {
+            "name": "source_chain_id",
+            "type": "u32"
+          },
+          {
+            "name": "bridge_adapter",
+            "type": "pubkey"
+          },
+          {
+            "name": "order_id",
+            "type": {
+              "array": [
+                "u8",
+                32
+              ]
+            }
+          },
+          {
+            "name": "amount_in_to_release",
+            "type": "u128"
+          },
+          {
+            "name": "amount_out_filled",
+            "type": "u128"
+          },
+          {
+            "name": "origin_recipient",
+            "type": {
+              "array": [
+                "u8",
+                32
+              ]
+            }
+          },
+          {
+            "name": "token_in",
+            "type": {
+              "array": [
+                "u8",
+                32
+              ]
+            }
+          },
+          {
+            "name": "message_id",
+            "type": {
+              "array": [
+                "u8",
+                32
+              ]
+            }
+          }
+        ]
+      }
+    },
+    {
+      "name": "FillReportSent",
+      "type": {
+        "kind": "struct",
+        "fields": [
+          {
+            "name": "destination_chain_id",
+            "type": "u32"
+          },
+          {
+            "name": "bridge_adapter",
+            "type": "pubkey"
+          },
+          {
+            "name": "order_id",
+            "type": {
+              "array": [
+                "u8",
+                32
+              ]
+            }
+          },
+          {
+            "name": "amount_in_to_release",
+            "type": "u128"
+          },
+          {
+            "name": "amount_out_filled",
+            "type": "u128"
+          },
+          {
+            "name": "origin_recipient",
+            "type": {
+              "array": [
+                "u8",
+                32
+              ]
+            }
+          },
+          {
+            "name": "token_in",
+            "type": {
+              "array": [
+                "u8",
+                32
+              ]
+            }
+          }
+        ]
+      }
+    },
+    {
+      "name": "MBalanceClaimed",
+      "type": {
+        "kind": "struct",
+        "fields": [
+          {
+            "name": "admin",
+            "type": "pubkey"
+          },
+          {
+            "name": "amount",
+            "type": "u64"
+          },
+          {
+            "name": "destination",
+            "type": "pubkey"
+          },
+          {
+            "name": "remaining_unclaimed",
+            "type": "u64"
+          }
+        ]
+      }
+    },
+    {
+      "name": "MBalanceStored",
+      "type": {
+        "kind": "struct",
+        "fields": [
+          {
+            "name": "source_chain_id",
+            "type": "u32"
+          },
+          {
+            "name": "destination_token",
+            "type": {
+              "array": [
+                "u8",
+                32
+              ]
+            }
+          },
+          {
+            "name": "sender",
+            "type": {
+              "array": [
+                "u8",
+                32
+              ]
+            }
+          },
+          {
+            "name": "recipient",
+            "type": {
+              "array": [
+                "u8",
+                32
+              ]
+            }
+          },
+          {
+            "name": "principal_amount",
+            "type": "u64"
+          },
+          {
+            "name": "message_id",
+            "type": {
+              "array": [
+                "u8",
+                32
+              ]
+            }
+          }
+        ]
+      }
+    },
+    {
+      "name": "MTokenIndexReceived",
+      "type": {
+        "kind": "struct",
+        "fields": [
+          {
+            "name": "index",
+            "type": "u128"
+          },
+          {
+            "name": "message_id",
+            "type": {
+              "array": [
+                "u8",
+                32
+              ]
+            }
+          }
+        ]
+      }
+    },
+    {
+      "name": "PortalGlobal",
+      "type": {
+        "kind": "struct",
+        "fields": [
+          {
+            "name": "bump",
+            "type": "u8"
+          },
+          {
+            "name": "chain_id",
+            "type": "u32"
+          },
+          {
+            "name": "m_mint",
+            "type": "pubkey"
+          },
+          {
+            "name": "admin",
+            "type": "pubkey"
+          },
+          {
+            "name": "outgoing_paused",
+            "type": "bool"
+          },
+          {
+            "name": "incoming_paused",
+            "type": "bool"
+          },
+          {
+            "name": "m_index",
+            "docs": [
+              "The lastest index value to propagate to other chains"
+            ],
+            "type": "u128"
+          },
+          {
+            "name": "message_nonce",
+            "docs": [
+              "To ensure bridge message ID uniqueness"
+            ],
+            "type": "u64"
+          },
+          {
+            "name": "pending_admin",
+            "type": {
+              "option": "pubkey"
+            }
+          },
+          {
+            "name": "isolated_hub_chain_id",
+            "docs": [
+              "This portal is an isolated spoke"
+            ],
+            "type": {
+              "option": "u32"
+            }
+          },
+          {
+            "name": "unclaimed_m_balance",
+            "docs": [
+              "Aggregate principal amount of M tokens stored when destination_token is not whitelisted"
+            ],
+            "type": "u64"
+          },
+          {
+            "name": "padding",
+            "type": {
+              "array": [
+                "u8",
+                120
+              ]
+            }
+          }
+        ]
+      }
+    },
+    {
+      "name": "SwapGlobal",
+      "type": {
+        "kind": "struct",
+        "fields": [
+          {
+            "name": "bump",
+            "type": "u8"
+          },
+          {
+            "name": "admin",
+            "type": "pubkey"
+          },
+          {
+            "name": "whitelisted_unwrappers",
+            "type": {
+              "vec": "pubkey"
+            }
+          },
+          {
+            "name": "whitelisted_extensions",
+            "type": {
+              "vec": {
+                "defined": {
+                  "name": "WhitelistedExtension"
+                }
+              }
+            }
+          }
+        ]
+      }
+    },
+    {
+      "name": "TokenReceived",
+      "type": {
+        "kind": "struct",
+        "fields": [
+          {
+            "name": "source_chain_id",
+            "type": "u32"
+          },
+          {
+            "name": "bridge_adapter",
+            "type": "pubkey"
+          },
+          {
+            "name": "destination_token",
+            "type": {
+              "array": [
+                "u8",
+                32
+              ]
+            }
+          },
+          {
+            "name": "sender",
+            "type": {
+              "array": [
+                "u8",
+                32
+              ]
+            }
+          },
+          {
+            "name": "recipient",
+            "type": {
+              "array": [
+                "u8",
+                32
+              ]
+            }
+          },
+          {
+            "name": "amount",
+            "type": "u128"
+          },
+          {
+            "name": "message_id",
+            "type": {
+              "array": [
+                "u8",
+                32
+              ]
+            }
+          }
+        ]
+      }
+    },
+    {
+      "name": "TokenSent",
+      "type": {
+        "kind": "struct",
+        "fields": [
+          {
+            "name": "source_token",
+            "type": "pubkey"
+          },
+          {
+            "name": "destination_chain_id",
+            "type": "u32"
+          },
+          {
+            "name": "destination_token",
+            "type": {
+              "array": [
+                "u8",
+                32
+              ]
+            }
+          },
+          {
+            "name": "sender",
+            "type": "pubkey"
+          },
+          {
+            "name": "recipient",
+            "type": {
+              "array": [
+                "u8",
+                32
+              ]
+            }
+          },
+          {
+            "name": "amount",
+            "type": "u128"
+          },
+          {
+            "name": "index",
+            "type": "u128"
+          },
+          {
+            "name": "bridge_adapter",
+            "type": "pubkey"
+          }
+        ]
+      }
+    },
+    {
+      "name": "WhitelistedExtension",
+      "type": {
+        "kind": "struct",
+        "fields": [
+          {
+            "name": "program_id",
+            "type": "pubkey"
+          },
+          {
+            "name": "mint",
+            "type": "pubkey"
+          },
+          {
+            "name": "token_program",
+            "type": "pubkey"
+          }
+        ]
+      }
+    }
+  ],
+  "constants": [
+    {
+      "name": "CHAIN_PATHS_SEED",
+      "type": "bytes",
+      "value": "[99, 104, 97, 105, 110, 95, 112, 97, 116, 104, 115]"
+    },
+    {
+      "name": "GLOBAL_SEED",
+      "type": "bytes",
+      "value": "[103, 108, 111, 98, 97, 108]"
+    },
+    {
+      "name": "MESSAGE_SEED",
+      "type": "bytes",
+      "value": "[109, 101, 115, 115, 97, 103, 101]"
+    },
+    {
+      "name": "MINT_AUTHORITY_SEED",
+      "type": "bytes",
+      "value": "[109, 105, 110, 116, 95, 97, 117, 116, 104, 111, 114, 105, 116, 121]"
+    },
+    {
+      "name": "M_VAULT_SEED",
+      "type": "bytes",
+      "value": "[109, 95, 118, 97, 117, 108, 116]"
+    }
+  ]
+}
