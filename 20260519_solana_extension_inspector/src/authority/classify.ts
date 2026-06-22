@@ -36,7 +36,10 @@ export function createClassifier(conn: Connection) {
         pubkey,
         exists: false,
         onCurve,
-        classification: "unfunded_eoa",
+        // Off-curve addresses have no valid private key, so they are PDAs regardless
+        // of whether they hold an on-chain account. Only on-curve non-existent addresses
+        // are truly unfunded EOAs (valid keypairs that haven't been funded yet).
+        classification: onCurve ? "unfunded_eoa" : "system_pda",
         owner: null,
         lamports: 0,
         details: {},
