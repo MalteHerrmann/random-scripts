@@ -1,0 +1,120 @@
+{
+  "auditedAt": "2026-06-22T20:25:38.303Z",
+  "rpcEndpoint": "https://devnet.helius-rpc.com/?api-key=c5cd4e3c-bba3-47ce-bec8-74a82995a1c1",
+  "program": {
+    "address": "mextzNVPUbLbvyBwqBqnC5J1SSwjDLjjR4yppf6EBzc",
+    "loader": "BPFLoaderUpgradeab1e11111111111111111111111",
+    "loaderVersion": "v3",
+    "executable": true,
+    "programDataAddress": "BrRGYVKUPyGVGKTdGP8ToSz8h6wpLu1kwQcuSC6Pt9KL",
+    "lastDeployedSlot": 468774937,
+    "bytecodeHash": "sha256:f8e897033981090c20762e7515591524be22d513f1ea7342e6452271c8fff88f",
+    "bytecodeLength": 398376,
+    "upgradeAuthority": {
+      "pubkey": "D76ySoHPwD8U2nnTTDqXeUJQg5UkD9UD1PUE1rnvPAGm",
+      "exists": true,
+      "onCurve": true,
+      "classification": "eoa",
+      "owner": "11111111111111111111111111111111",
+      "lamports": 19675179718,
+      "details": {}
+    },
+    "upgradeHistory": [],
+    "anchorIdl": {
+      "present": true,
+      "name": "m_ext",
+      "version": "0.2.0",
+      "instructions": [
+        "accept_admin",
+        "add_wrap_authority",
+        "claim_fees",
+        "initialize",
+        "remove_wrap_authority",
+        "revoke_admin_transfer",
+        "transfer_admin",
+        "unwrap",
+        "wrap"
+      ]
+    }
+  },
+  "mint": {
+    "address": "dawn7ZUF7h7anFuEsDdAU1Y3HYwikwqNMAENZsQJdNL",
+    "tokenProgram": "TokenzQdBNbLqP5VEhdkAS6EPFLC1PHnBqCXEpPxuEb",
+    "decimals": 6,
+    "supply": "0",
+    "mintAuthority": {
+      "pubkey": "Am4facCvkQkHjwSArPX8Jqxs1ss14XMoC8JkTV3BDG95",
+      "exists": false,
+      "onCurve": false,
+      "classification": "system_pda",
+      "owner": null,
+      "lamports": 0,
+      "details": {}
+    },
+    "freezeAuthority": {
+      "pubkey": "98Ck1KwGZcbPsY5bexhLnEBPWhkyrCMbNd9RpxGwJTKc",
+      "exists": false,
+      "onCurve": true,
+      "classification": "unfunded_eoa",
+      "owner": null,
+      "lamports": 0,
+      "details": {}
+    },
+    "extensions": [
+      {
+        "type": "TransferHook",
+        "authority": {
+          "pubkey": "98Ck1KwGZcbPsY5bexhLnEBPWhkyrCMbNd9RpxGwJTKc",
+          "exists": false,
+          "onCurve": true,
+          "classification": "unfunded_eoa",
+          "owner": null,
+          "lamports": 0,
+          "details": {}
+        },
+        "programId": "11111111111111111111111111111111"
+      },
+      {
+        "type": "MetadataPointer",
+        "authority": {
+          "pubkey": "98Ck1KwGZcbPsY5bexhLnEBPWhkyrCMbNd9RpxGwJTKc",
+          "exists": false,
+          "onCurve": true,
+          "classification": "unfunded_eoa",
+          "owner": null,
+          "lamports": 0,
+          "details": {}
+        },
+        "metadataAddress": "dawn7ZUF7h7anFuEsDdAU1Y3HYwikwqNMAENZsQJdNL"
+      },
+      {
+        "type": "TokenMetadata",
+        "updateAuthority": {
+          "pubkey": "98Ck1KwGZcbPsY5bexhLnEBPWhkyrCMbNd9RpxGwJTKc",
+          "exists": false,
+          "onCurve": true,
+          "classification": "unfunded_eoa",
+          "owner": null,
+          "lamports": 0,
+          "details": {}
+        },
+        "mint": "dawn7ZUF7h7anFuEsDdAU1Y3HYwikwqNMAENZsQJdNL",
+        "name": "USD.tel",
+        "symbol": "USD.tel",
+        "uri": "https://green-obedient-albatross-155.mypinata.cloud/ipfs/bafkreidyksiobibqsfzjefjlz3nkshgnkk2gangdjio6idx4f7gcvrejrm"
+      },
+      {
+        "type": "PausableConfig",
+        "authority": {
+          "pubkey": "98Ck1KwGZcbPsY5bexhLnEBPWhkyrCMbNd9RpxGwJTKc",
+          "exists": false,
+          "onCurve": true,
+          "classification": "unfunded_eoa",
+          "owner": null,
+          "lamports": 0,
+          "details": {}
+        }
+      }
+    ]
+  }
+}
