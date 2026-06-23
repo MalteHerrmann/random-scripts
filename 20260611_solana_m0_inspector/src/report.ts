@@ -55,6 +55,7 @@ export function renderHuman(
       .join("  ");
     out.push(`  ${tierLine}`);
     out.push(paint(C.dim, `  global=${r.ext.globalPda.toBase58()} m_vault=${r.ext.mVaultPda.toBase58()} vault_ata=${r.ext.vaultMAta.toBase58()}`));
+    if (r.ext.global) out.push(paint(C.dim, `  admin=${r.ext.global.admin.toBase58()}`));
     for (const fd of r.findings) out.push(renderFinding(fd));
     out.push("");
   }
