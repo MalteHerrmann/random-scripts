@@ -88,19 +88,6 @@ class Reader {
     this.need(n);
     this.off += n;
   }
-  /**
-   * Layout validation: the decode must consume the buffer except for an
-   * all-zero tail. Anchor allocates account space for the max serialized size
-   * (e.g. Option<Pubkey> reserves 33 bytes even when None serializes to 1),
-   * so a zero tail is normal — non-zero trailing bytes mean a wrong layout.
-   */
-  expectZeroTail() {
-    for (let i = this.off; i < this.data.length; i++) {
-      if (this.data[i] !== 0) {
-        throw new RangeError(`non-zero trailing byte at offset ${i} (layout mismatch)`);
-      }
-    }
-  }
 }
 
 /* ------------------------- discriminators (from the vendored IDLs) ------------------------- */
@@ -233,9 +220,19 @@ export function decodeChainBridgePaths(data: Buffer): ChainBridgePaths {
  *     before becoming `{variant, earn_authority, last_m_index, last_ext_index,
  *     timestamp}` (devnet wM still runs the former).
  *
- * Since the account has no padding, the correct layout is the candidate that
- * (a) decodes within bounds, (b) has a variant tag matching the candidate's
- * variant, and (c) consumes the buffer exactly. Modern layouts are tried first.
+ * The correct layout is the candidate that (a) decodes within bounds, (b) has a
+ * variant tag matching the candidate's variant, and (c) has a total account
+ * length equal to what the program allocates for that generation and wrap-
+ * authority count (see `expectedExtGlobalLen`). Modern layouts are tried first.
+ *
+ * We validate against the program's *allocated* size rather than requiring the
+ * decode to consume the buffer exactly. `pending_admin: Option<Pubkey>` is
+ * allocated at its 33-byte maximum (`ExtGlobalV2::size()`), but serializes to a
+ * single byte when `None` — leaving 32 trailing bytes that are NOT guaranteed to
+ * be zero: they retain stale data from when the field (or a longer wrap-authority
+ * list) was last written. An all-zero-tail check therefore wrongly rejects a
+ * valid `None`-admin account; the size formula accepts that slack while still
+ * rejecting genuine layout mismatches (which land a different total length).
  */
 interface LayoutCandidate {
   variant: Variant;
@@ -255,6 +252,31 @@ const LAYOUT_CANDIDATES: LayoutCandidate[] = [
 ];
 
 const VARIANT_TAG: Record<Variant, number> = { "no-yield": 0, "scaled-ui": 1, crank: 2 };
+
+/** Serialized size of the YieldConfig struct (incl. its 1-byte variant tag), per generation. */
+function yieldConfigSize(c: LayoutCandidate): number {
+  if (c.variant === "no-yield") return 1; // yield_variant
+  if (c.variant === "scaled-ui") return 1 + 8 + 8 + 8; // + fee_bps, last_m_index, last_ext_index
+  if (c.legacyCrankConfig) return 1 + 32 + 8 + 8; // + earn_authority, index, timestamp
+  return 1 + 32 + 8 + 8 + 8; // + earn_authority, last_m_index, last_ext_index, timestamp
+}
+
+/**
+ * Account length the program allocates for a given generation with `n` wrap
+ * authorities — mirrors `ExtGlobalV2::size()`. `pending_admin: Option<Pubkey>`
+ * is reserved at its 33-byte maximum regardless of its current value.
+ */
+function expectedExtGlobalLen(c: LayoutCandidate, n: number): number {
+  return (
+    8 + // discriminator
+    32 + // admin
+    (c.hasPendingAdmin ? 1 + 32 : 0) + // pending_admin: Option<Pubkey>, reserved at max
+    32 + 32 + 32 + // ext_mint, m_mint, m_earn_global_account
+    1 + 1 + 1 + // bump, m_vault_bump, ext_mint_authority_bump
+    yieldConfigSize(c) +
+    4 + 32 * n // wrap_authorities: Vec<Pubkey>
+  );
+}
 
 export interface DecodedExtGlobal {
   global: ExtGlobalV2;
@@ -310,7 +332,12 @@ function decodeExtGlobalWith(data: Buffer, c: LayoutCandidate): ExtGlobalV2 {
   }
 
   const wrap_authorities = r.vec(() => r.pubkey(), 32);
-  r.expectZeroTail();
+  const expectedLen = expectedExtGlobalLen(c, wrap_authorities.length);
+  if (data.length !== expectedLen) {
+    throw new RangeError(
+      `account length ${data.length} != allocated size ${expectedLen} for this layout (wrap_authorities=${wrap_authorities.length})`
+    );
+  }
 
   return {
     admin,
