@@ -35,7 +35,7 @@ Pick whatever language fits the task; there is no default. Manage the project wi
 the standard toolchain for that language:
 
 - **Python** → `uv` (`uv init`, `uv add`, `uv run`). No bare `pip`/`venv`.
-- **JavaScript / TypeScript** → `pnpm`.
+- **JavaScript / TypeScript** → `pnpm`. Use `ts-node` as the TypeScript runner (not `tsx` — `tsx` depends on esbuild's native binary, which requires explicit pnpm build allowlisting on every fresh setup). Set `"module": "NodeNext"` and `"moduleResolution": "NodeNext"` in `tsconfig.json` so ts-node handles ESM automatically.
 - **Go** → the `go` toolchain (`go mod`, `go run`, `go build`).
 - **Rust** → `cargo`.
 
