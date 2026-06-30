@@ -1,0 +1,10 @@
+# Baseline toolchain for this repo, managed by mise (https://mise.jdx.dev).
+# Run `mise install` to get these on PATH. Not every tool needs all of them —
+# a single-language tool can add its own `.mise.toml` to pin tighter versions.
+# Python is intentionally absent: uv is the single source of truth for it.
+[tools]
+uv = "latest"
+node = "24"
+pnpm = "11"
+go = "1.26.4"
+rust = "1.95"
