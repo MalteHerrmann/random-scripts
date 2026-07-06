@@ -8,7 +8,7 @@
   },
   "scripts": {
     "build": "tsc",
-    "inspect": "tsx src/index.ts",
+    "inspect": "ts-node src/index.ts",
     "typecheck": "tsc --noEmit"
   },
   "dependencies": {
@@ -20,7 +20,6 @@
   },
   "pnpm": {
     "onlyBuiltDependencies": [
-      "esbuild",
       "bigint-buffer",
       "bufferutil",
       "utf-8-validate"
@@ -28,7 +27,7 @@
   },
   "devDependencies": {
     "@types/node": "^22.0.0",
-    "tsx": "^4.19.0",
+    "ts-node": "^10.9.0",
     "typescript": "^5.6.0"
   }
 }
