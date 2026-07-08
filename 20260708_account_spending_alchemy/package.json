@@ -1,0 +1,13 @@
+{
+  "name": "account-spending-alchemy",
+  "version": "1.0.0",
+  "private": true,
+  "type": "module",
+  "description": "Track an Ethereum account's gas spending over a time window using Alchemy APIs.",
+  "engines": {
+    "node": ">=22"
+  },
+  "scripts": {
+    "start": "node account_spending.js"
+  }
+}
