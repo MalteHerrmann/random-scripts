@@ -2,7 +2,7 @@
 import "dotenv/config";
 import { Command } from "commander";
 import { formatEther, isAddress, type Address } from "viem";
-import { buildSpendingReport, type SpendingReport } from "./tracker.js";
+import { buildSpendingReport, type SpendingReport } from "./tracker.ts";
 
 function printReport(report: SpendingReport, verbose: boolean): void {
   console.log("");

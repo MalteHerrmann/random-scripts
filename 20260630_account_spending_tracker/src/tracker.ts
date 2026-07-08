@@ -1,5 +1,5 @@
 import { formatEther, getAddress, type Address } from "viem";
-import { fetchNormalTransactions, type EtherscanTx } from "./etherscan.js";
+import { fetchNormalTransactions, type EtherscanTx } from "./etherscan.ts";
 
 export interface TrackerOptions {
   address: Address;
