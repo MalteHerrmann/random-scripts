@@ -1,4 +1,4 @@
-import { AccountInfo, PublicKey } from "@solana/web3.js";
+import { PublicKey, type AccountInfo } from "@solana/web3.js";
 import {
   AccountState,
   ExtensionType,
@@ -8,7 +8,7 @@ import {
   unpackAccount,
   unpackMint,
 } from "@solana/spl-token";
-import { AtaState, MintInfo, ScaledUiAmountConfig } from "./types.js";
+import type { AtaState, MintInfo, ScaledUiAmountConfig } from "./types.ts";
 
 // ScaledUiAmountConfig landed in recent spl-token versions; fall back to the
 // raw Token2022 extension type id if the enum member is missing.

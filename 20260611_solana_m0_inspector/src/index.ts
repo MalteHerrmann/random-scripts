@@ -1,11 +1,11 @@
 #!/usr/bin/env node
 import { Connection, PublicKey } from "@solana/web3.js";
 import { Command } from "commander";
-import { NETWORKS } from "./config.js";
-import { runCoreChecks, runExtensionChecks, runRegistryCrossCheck, ExtensionReport } from "./checks.js";
-import { discoverableExtensions, normalizeExtensionInputs, resolveGraph } from "./resolve.js";
-import { renderHuman, renderJson, renderMermaid } from "./report.js";
-import { fetchHubState } from "./evm.js";
+import { NETWORKS } from "./config.ts";
+import { runCoreChecks, runExtensionChecks, runRegistryCrossCheck, type ExtensionReport } from "./checks.ts";
+import { discoverableExtensions, normalizeExtensionInputs, resolveGraph } from "./resolve.ts";
+import { renderHuman, renderJson, renderMermaid } from "./report.ts";
+import { fetchHubState } from "./evm.ts";
 import "@coral-xyz/anchor";
 
 function parsePubkey(value: string): PublicKey {

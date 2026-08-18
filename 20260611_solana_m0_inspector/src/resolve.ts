@@ -1,14 +1,14 @@
-import { AccountInfo, Connection, PublicKey } from "@solana/web3.js";
+import { Connection, PublicKey, type AccountInfo } from "@solana/web3.js";
 import { TOKEN_2022_PROGRAM_ID, getAssociatedTokenAddressSync } from "@solana/spl-token";
 import bs58 from "bs58";
 import {
-  NetworkConfig,
   extMintAuthorityPda,
   globalPda,
   hyperlaneAccountMetasPda,
   mVaultPda,
   portalAuthorityPda,
-} from "./config.js";
+  type NetworkConfig,
+} from "./config.ts";
 import {
   DISCRIMINATORS,
   decodeAccountMetasData,
@@ -20,9 +20,9 @@ import {
   decodeSwapGlobal,
   decodeWormholeGlobal,
   matchDiscriminator,
-} from "./decode.js";
-import { decodeMint, decodeTokenAccountState, uiAmount } from "./token.js";
-import {
+} from "./decode.ts";
+import { decodeMint, decodeTokenAccountState, uiAmount } from "./token.ts";
+import type {
   AccountMetasData,
   ChainBridgePaths,
   CoreState,
@@ -36,7 +36,7 @@ import {
   SwapGlobal,
   Variant,
   WormholeGlobal,
-} from "./types.js";
+} from "./types.ts";
 
 const BPF_UPGRADEABLE_LOADER = new PublicKey("BPFLoaderUpgradeab1e11111111111111111111111");
 

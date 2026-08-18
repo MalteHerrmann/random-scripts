@@ -1,5 +1,5 @@
 import { PublicKey } from "@solana/web3.js";
-import { HubState } from "./evm.js";
+import type { HubState } from "./evm.ts";
 
 export type Status = "ok" | "warn" | "fail" | "info";
 

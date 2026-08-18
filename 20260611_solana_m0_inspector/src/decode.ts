@@ -1,5 +1,5 @@
 import { PublicKey } from "@solana/web3.js";
-import {
+import type {
   AccountMetasData,
   ChainBridgePaths,
   EarnGlobal,
@@ -13,7 +13,7 @@ import {
   YieldConfigCrank,
   YieldConfigNoYield,
   YieldConfigScaledUi,
-} from "./types.js";
+} from "./types.ts";
 
 /**
  * Minimal borsh reader with strict bounds checks.
@@ -25,8 +25,10 @@ import {
  * RangeError instead, which callers surface as a "layout mismatch" warning.
  */
 class Reader {
+  private readonly data: Buffer;
   private off: number;
-  constructor(private readonly data: Buffer, skipDiscriminator = true) {
+  constructor(data: Buffer, skipDiscriminator = true) {
+    this.data = data;
     this.off = skipDiscriminator ? 8 : 0;
     if (this.off > data.length) throw new RangeError("buffer shorter than discriminator");
   }

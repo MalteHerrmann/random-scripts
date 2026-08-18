@@ -1,5 +1,5 @@
-import { ExtensionReport } from "./checks.js";
-import { Finding, Graph, Status } from "./types.js";
+import type { ExtensionReport } from "./checks.ts";
+import type { Finding, Graph, Status } from "./types.ts";
 
 const C = {
   reset: "\x1b[0m",

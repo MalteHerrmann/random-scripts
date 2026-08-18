@@ -1,15 +1,15 @@
 import { PublicKey } from "@solana/web3.js";
-import { NetworkConfig, globalPda } from "./config.js";
-import { impliedLagDays } from "./evm.js";
-import { tokenProgramName } from "./token.js";
-import {
+import { globalPda, type NetworkConfig } from "./config.ts";
+import { impliedLagDays } from "./evm.ts";
+import { tokenProgramName } from "./token.ts";
+import type {
   ExtensionState,
   Finding,
   Graph,
   Status,
   YieldConfigCrank,
   YieldConfigScaledUi,
-} from "./types.js";
+} from "./types.ts";
 
 const short = (pk: PublicKey | null | undefined) => (pk ? pk.toBase58() : "—");
 const hex = (bytes: number[]) => "0x" + Buffer.from(bytes).toString("hex");
