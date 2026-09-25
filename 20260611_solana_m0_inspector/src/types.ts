@@ -223,6 +223,8 @@ export interface ExtensionState {
   vaultMAta: PublicKey;
   vaultAtaState: AtaState;
   vaultMUiBalance: number | null;
+  /** crank only: number of Earner accounts; null for other variants or when getProgramAccounts fails */
+  earnerCount: number | null;
   /** label resolved from known addresses (wM, XO, …) if any */
   label: string | null;
 }

@@ -313,6 +313,21 @@ export async function resolveGraph(
     warnings.push(`getProgramAccounts unavailable, skipping bridge-path enumeration: ${(e as Error).message}`);
   }
 
+  // ---- crank earners (count only, no data) ----
+  const earnerCounts = new Map<string, number>();
+  for (const e of extDecoded) {
+    if (e.variant !== "crank") continue;
+    try {
+      const accounts = await connection.getProgramAccounts(e.programId, {
+        dataSlice: { offset: 0, length: 0 },
+        filters: [{ memcmp: { offset: 0, bytes: bs58.encode(DISCRIMINATORS["Earner"]) } }],
+      });
+      earnerCounts.set(e.programId.toBase58(), accounts.length);
+    } catch (err) {
+      warnings.push(`getProgramAccounts unavailable, skipping earner count of ${e.programId.toBase58()}: ${(err as Error).message}`);
+    }
+  }
+
   if (process.env.M0_DEBUG) console.error("[debug] after-gpa");
   const core: CoreState = {
     mMint,
@@ -378,6 +393,7 @@ export async function resolveGraph(
       vaultMAta: vaultAta,
       vaultAtaState: vault.state,
       vaultMUiBalance: mMint ? uiAmount(vault.amount, mMint.decimals, mMultiplier) : null,
+      earnerCount: earnerCounts.get(e.programId.toBase58()) ?? null,
       label: cfg.knownExtensions[e.programId.toBase58()] ?? null,
     };
   });

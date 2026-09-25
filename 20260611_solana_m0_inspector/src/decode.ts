@@ -103,6 +103,7 @@ export const DISCRIMINATORS: Record<string, Buffer> = {
   HyperlaneGlobal: Buffer.from([139, 60, 79, 223, 221, 146, 42, 102]),
   ChainBridgePaths: Buffer.from([89, 30, 178, 53, 154, 232, 75, 140]),
   AccountMetasData: Buffer.from([18, 230, 15, 151, 89, 53, 116, 8]),
+  Earner: Buffer.from([236, 126, 51, 96, 46, 225, 103, 207]),
 };
 
 export function matchDiscriminator(data: Buffer): string | null {

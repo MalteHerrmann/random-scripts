@@ -541,6 +541,9 @@ export function runExtensionChecks(graph: Graph, cfg: NetworkConfig, ext: Extens
           remediation: tsDays !== null && tsDays > cfg.indexStaleAfterSeconds / 86_400 ? "yield-bot may be stalled (sync/claim_for)" : undefined,
         })
       );
+      if (ext.earnerCount !== null) {
+        out.push(f("E9.c", sub, "crank registered earners", "info", { actual: `${ext.earnerCount}` }));
+      }
     } else if (ext.variant === "scaled-ui") {
       const yc = g.yield_config as YieldConfigScaledUi;
       const portalIndex = core.portal.global?.m_index;
