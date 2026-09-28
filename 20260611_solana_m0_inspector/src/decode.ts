@@ -3,6 +3,7 @@ import type {
   AccountMetasData,
   ChainBridgePaths,
   EarnGlobal,
+  Earner,
   ExtGlobalV2,
   HyperlaneGlobal,
   Peer,
@@ -103,6 +104,7 @@ export const DISCRIMINATORS: Record<string, Buffer> = {
   HyperlaneGlobal: Buffer.from([139, 60, 79, 223, 221, 146, 42, 102]),
   ChainBridgePaths: Buffer.from([89, 30, 178, 53, 154, 232, 75, 140]),
   AccountMetasData: Buffer.from([18, 230, 15, 151, 89, 53, 116, 8]),
+  Earner: Buffer.from([236, 126, 51, 96, 46, 225, 103, 207]),
 };
 
 export function matchDiscriminator(data: Buffer): string | null {
@@ -210,6 +212,19 @@ export function decodeChainBridgePaths(data: Buffer): ChainBridgePaths {
     bump: r.u8(),
     destination_chain_id: r.u32(),
     paths: r.vec(() => ({ source_mint: r.pubkey(), destination_token: [...r.bytes(32)] }), 64),
+  };
+}
+
+export function decodeEarner(data: Buffer): Earner {
+  const r = new Reader(data);
+  return {
+    last_claim_index: r.u64(),
+    last_claim_timestamp: r.u64(),
+    bump: r.u8(),
+    user: r.pubkey(),
+    user_token_account: r.pubkey(),
+    earn_manager: r.pubkey(),
+    recipient_token_account: r.option(() => r.pubkey()),
   };
 }
 

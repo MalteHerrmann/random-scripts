@@ -60,6 +60,32 @@ export function renderHuman(
       out.push(paint(C.dim, `  admin=${r.ext.global.admin.toBase58()}${pendingAdmin}`));
     }
     for (const fd of r.findings) out.push(renderFinding(fd));
+    if (r.ext.earners) {
+      out.push("");
+      out.push(paint(C.bold, `  Earners (${r.ext.earners.length})`));
+      const fmt = (n: number) => n.toLocaleString("en-US", { minimumFractionDigits: 6, maximumFractionDigits: 6 });
+      const rows = [...r.ext.earners]
+        .sort((a, b) => (b.uiBalance ?? -1) - (a.uiBalance ?? -1))
+        .map(({ earner, uiBalance }) => {
+          const claimedMs = Number(earner.last_claim_timestamp) * 1000;
+          const days = (Date.now() - claimedMs) / 86_400_000;
+          return [
+            earner.user.toBase58(),
+            earner.user_token_account.toBase58(),
+            uiBalance === null ? "n/a" : fmt(uiBalance),
+            earner.last_claim_index.toString(),
+            `${new Date(claimedMs).toISOString().slice(0, 16).replace("T", " ")} (${days.toFixed(1)}d ago)`,
+          ];
+        });
+      const header = ["user", "token account", `balance (${r.ext.label ?? "ext"})`, "claim index", "last claim"];
+      const widths = header.map((h, i) => Math.max(h.length, ...rows.map((row) => row[i].length)));
+      // balance and index columns are right-aligned
+      const line = (cells: string[]) =>
+        "  " + cells.map((c, i) => (i === 2 || i === 3 ? c.padStart(widths[i]) : c.padEnd(widths[i]))).join("  ").trimEnd();
+      out.push(paint(C.dim, line(header)));
+      out.push(paint(C.dim, "  " + widths.map((w) => "─".repeat(w)).join("  ")));
+      for (const row of rows) out.push(line(row));
+    }
     out.push("");
   }
 
@@ -112,6 +138,7 @@ export function renderJson(
         variant: r.ext.variant,
         tiers: Object.fromEntries(r.tiers.map((t) => [t.name, t.achieved])),
         findings: r.findings,
+        ...(r.ext.earners ? { earners: r.ext.earners } : {}),
       })),
       registry: registryFindings,
       warnings: [...new Set(warnings)],

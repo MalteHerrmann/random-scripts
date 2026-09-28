@@ -20,6 +20,7 @@ pnpm inspect devnet --discover
 # machine-readable / CI
 pnpm inspect devnet --discover --json        # exit code = number of hard failures
 pnpm inspect devnet --discover --graph      # appends a mermaid diagram of the resolved wiring
+pnpm inspect mainnet --ext wMXX1K1nca5W4pZr1piETe78gcAVVrEFi9f4g46uXko --earners  # lists crank Earner accounts with balances
 
 # overrides
 pnpm inspect devnet --rpc https://devnet.helius-rpc.com/?api-key=… \
@@ -34,7 +35,7 @@ pnpm inspect devnet --rpc https://devnet.helius-rpc.com/?api-key=… \
 
 **Hub propagation (C9-checks)** — reads the EVM hub directly (Sepolia for devnet, plain `eth_call`, no extra deps): `$M.currentIndex()` and the Merkle Tree Builder's `getRoot("solana-earners")`. Reports how far Solana's index lags the hub in **bps and implied days** (via `ln(hub/solana) / earnerRate`), checks `PortalGlobal.m_index` consistency with the mint multiplier, and verifies merkle-root parity with the hub. Default-on; `--no-evm` skips, `--eth-rpc <url>` (or `ETH_RPC_URL`) overrides the public endpoint. Unreachable hub degrades to a tool warning.
 
-**Per extension (E-checks)** — program deployed, `ExtGlobalV2` initialized + variant detection (`no-yield` / `scaled-ui` / `crank`), canonical `$M` and EarnGlobal references (the legacy earn global is flagged specially), ext mint authority = `["mint_authority"]` PDA (+ ScaledUiAmount for scaled-ui), `m_vault` ATA exists **and is thawed** (thawed = registered earner; `$M` defaults to Frozen), wrap authorities include the SwapGlobal PDA, ext_swap whitelist entry matches, variant-specific yield-sync freshness, bridge path + hyperlane metas registration, vault collateral ≥ ext supply.
+**Per extension (E-checks)** — program deployed, `ExtGlobalV2` initialized + variant detection (`no-yield` / `scaled-ui` / `crank`), canonical `$M` and EarnGlobal references (the legacy earn global is flagged specially), ext mint authority = `["mint_authority"]` PDA (+ ScaledUiAmount for scaled-ui), `m_vault` ATA exists **and is thawed** (thawed = registered earner; `$M` defaults to Frozen), wrap authorities include the SwapGlobal PDA, ext_swap whitelist entry matches, variant-specific yield-sync freshness (+ registered `Earner` account count for crank), bridge path + hyperlane metas registration, vault collateral ≥ ext supply.
 
 Each failed check carries a remediation hint pointing at the existing CLI command or runbook that fixes it.
 
