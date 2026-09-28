@@ -149,6 +149,24 @@ export interface YieldConfigCrank {
   timestamp: bigint;
 }
 
+/** crank `Earner` account (PDA `["earner", user_token_account]`) */
+export interface Earner {
+  last_claim_index: bigint;
+  last_claim_timestamp: bigint;
+  bump: number;
+  user: PublicKey;
+  user_token_account: PublicKey;
+  earn_manager: PublicKey;
+  recipient_token_account: PublicKey | null;
+}
+
+export interface EarnerEntry {
+  address: PublicKey;
+  earner: Earner;
+  /** ext token balance of user_token_account; null when the account is missing */
+  uiBalance: number | null;
+}
+
 export interface ExtGlobalV2 {
   admin: PublicKey;
   pending_admin: PublicKey | null;
@@ -225,6 +243,8 @@ export interface ExtensionState {
   vaultMUiBalance: number | null;
   /** crank only: number of Earner accounts; null for other variants or when getProgramAccounts fails */
   earnerCount: number | null;
+  /** crank only, set with --earners; null otherwise */
+  earners: EarnerEntry[] | null;
   /** label resolved from known addresses (wM, XO, …) if any */
   label: string | null;
 }

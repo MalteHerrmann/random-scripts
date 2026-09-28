@@ -3,7 +3,7 @@ import { Connection, PublicKey } from "@solana/web3.js";
 import { Command } from "commander";
 import { NETWORKS } from "./config.ts";
 import { runCoreChecks, runExtensionChecks, runRegistryCrossCheck, type ExtensionReport } from "./checks.ts";
-import { discoverableExtensions, normalizeExtensionInputs, resolveGraph } from "./resolve.ts";
+import { discoverableExtensions, fetchEarners, normalizeExtensionInputs, resolveGraph } from "./resolve.ts";
 import { renderHuman, renderJson, renderMermaid } from "./report.ts";
 import { fetchHubState } from "./evm.ts";
 import "@coral-xyz/anchor";
@@ -35,6 +35,7 @@ program
   .option("--no-evm", "skip the EVM hub cross-check (index drift, merkle root parity)")
   .option("--json", "machine-readable output")
   .option("--graph", "print a mermaid diagram of the resolved wiring")
+  .option("--earners", "list every Earner account of crank extensions (user, token account, balance, last claim)")
   .option("--m-mint <pubkey>", "override $M mint")
   .option("--earn <pubkey>", "override earn program ID")
   .option("--portal <pubkey>", "override portal program ID")
@@ -81,6 +82,12 @@ program
         graph.hub = await fetchHubState(ethRpc, cfg.ethMToken, cfg.ethMerkleTreeBuilder);
       } catch (e) {
         warnings.push(`EVM hub unreachable via ${ethRpc} — skipping index-propagation checks: ${(e as Error).message}`);
+      }
+    }
+
+    if (opts.earners) {
+      for (const e of graph.extensions) {
+        if (e.variant === "crank") e.earners = await fetchEarners(connection, e, warnings);
       }
     }
 

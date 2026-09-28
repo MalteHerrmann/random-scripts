@@ -14,6 +14,7 @@ import {
   decodeAccountMetasData,
   decodeChainBridgePaths,
   decodeEarnGlobal,
+  decodeEarner,
   decodeExtGlobalV2,
   decodeHyperlaneGlobal,
   decodePortalGlobal,
@@ -27,6 +28,8 @@ import type {
   ChainBridgePaths,
   CoreState,
   EarnGlobal,
+  Earner,
+  EarnerEntry,
   ExtGlobalV2,
   ExtensionState,
   Graph,
@@ -394,6 +397,7 @@ export async function resolveGraph(
       vaultAtaState: vault.state,
       vaultMUiBalance: mMint ? uiAmount(vault.amount, mMint.decimals, mMultiplier) : null,
       earnerCount: earnerCounts.get(e.programId.toBase58()) ?? null,
+      earners: null,
       label: cfg.knownExtensions[e.programId.toBase58()] ?? null,
     };
   });
@@ -406,4 +410,38 @@ export async function resolveGraph(
     extensions,
     hub: null,
   };
+}
+
+/** Fetch all crank Earner accounts of an extension with the ext token balance of each user token account. */
+export async function fetchEarners(connection: Connection, ext: ExtensionState, warnings: string[]): Promise<EarnerEntry[] | null> {
+  const pid = ext.programId.toBase58();
+  let accounts;
+  try {
+    accounts = await connection.getProgramAccounts(ext.programId, {
+      filters: [{ memcmp: { offset: 0, bytes: bs58.encode(DISCRIMINATORS["Earner"]) } }],
+    });
+  } catch (err) {
+    warnings.push(`getProgramAccounts unavailable, skipping earner list of ${pid}: ${(err as Error).message}`);
+    return null;
+  }
+  const decoded = accounts
+    .map((a) => {
+      const earner = decodeOrNull(() => decodeEarner(a.account.data), `Earner ${a.pubkey.toBase58()}`, warnings);
+      return earner ? { address: a.pubkey, earner } : null;
+    })
+    .filter((e): e is { address: PublicKey; earner: Earner } => e !== null);
+
+  // getMultipleAccountsInfo takes at most 100 keys
+  const tokenAccounts: (AccountInfo<Buffer> | null)[] = [];
+  for (let i = 0; i < decoded.length; i += 100) {
+    const keys = decoded.slice(i, i + 100).map((e) => e.earner.user_token_account);
+    tokenAccounts.push(...(await connection.getMultipleAccountsInfo(keys)));
+  }
+  return decoded.map((e, i) => {
+    const info = tokenAccounts[i];
+    const amount = info
+      ? decodeOrNull(() => decodeTokenAccountState(e.earner.user_token_account, info).amount, `token account ${e.earner.user_token_account.toBase58()}`, warnings)
+      : null;
+    return { ...e, uiBalance: amount !== null && ext.extMint ? uiAmount(amount, ext.extMint.decimals) : null };
+  });
 }

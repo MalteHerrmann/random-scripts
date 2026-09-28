@@ -60,6 +60,21 @@ export function renderHuman(
       out.push(paint(C.dim, `  admin=${r.ext.global.admin.toBase58()}${pendingAdmin}`));
     }
     for (const fd of r.findings) out.push(renderFinding(fd));
+    if (r.ext.earners) {
+      const symbol = r.ext.label ?? "ext";
+      out.push(`  earners (${r.ext.earners.length}):`);
+      for (const { address, earner, uiBalance } of r.ext.earners) {
+        const balance = uiBalance === null ? "n/a (token account not found)" : `${uiBalance} ${symbol}`;
+        const claimedAt = new Date(Number(earner.last_claim_timestamp) * 1000).toISOString();
+        out.push(
+          paint(
+            C.dim,
+            `  - earner=${address.toBase58()} user=${earner.user.toBase58()} token_account=${earner.user_token_account.toBase58()} ` +
+              `balance=${balance} last_claim_index=${earner.last_claim_index} last_claim=${claimedAt}`
+          )
+        );
+      }
+    }
     out.push("");
   }
 
@@ -112,6 +127,7 @@ export function renderJson(
         variant: r.ext.variant,
         tiers: Object.fromEntries(r.tiers.map((t) => [t.name, t.achieved])),
         findings: r.findings,
+        ...(r.ext.earners ? { earners: r.ext.earners } : {}),
       })),
       registry: registryFindings,
       warnings: [...new Set(warnings)],

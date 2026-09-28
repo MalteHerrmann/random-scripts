@@ -20,6 +20,7 @@ pnpm inspect devnet --discover
 # machine-readable / CI
 pnpm inspect devnet --discover --json        # exit code = number of hard failures
 pnpm inspect devnet --discover --graph      # appends a mermaid diagram of the resolved wiring
+pnpm inspect mainnet --ext wMXX1K1nca5W4pZr1piETe78gcAVVrEFi9f4g46uXko --earners  # lists crank Earner accounts with balances
 
 # overrides
 pnpm inspect devnet --rpc https://devnet.helius-rpc.com/?api-key=… \

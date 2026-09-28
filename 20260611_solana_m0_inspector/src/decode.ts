@@ -3,6 +3,7 @@ import type {
   AccountMetasData,
   ChainBridgePaths,
   EarnGlobal,
+  Earner,
   ExtGlobalV2,
   HyperlaneGlobal,
   Peer,
@@ -211,6 +212,19 @@ export function decodeChainBridgePaths(data: Buffer): ChainBridgePaths {
     bump: r.u8(),
     destination_chain_id: r.u32(),
     paths: r.vec(() => ({ source_mint: r.pubkey(), destination_token: [...r.bytes(32)] }), 64),
+  };
+}
+
+export function decodeEarner(data: Buffer): Earner {
+  const r = new Reader(data);
+  return {
+    last_claim_index: r.u64(),
+    last_claim_timestamp: r.u64(),
+    bump: r.u8(),
+    user: r.pubkey(),
+    user_token_account: r.pubkey(),
+    earn_manager: r.pubkey(),
+    recipient_token_account: r.option(() => r.pubkey()),
   };
 }
 
