@@ -61,19 +61,30 @@ export function renderHuman(
     }
     for (const fd of r.findings) out.push(renderFinding(fd));
     if (r.ext.earners) {
-      const symbol = r.ext.label ?? "ext";
-      out.push(`  earners (${r.ext.earners.length}):`);
-      for (const { address, earner, uiBalance } of r.ext.earners) {
-        const balance = uiBalance === null ? "n/a (token account not found)" : `${uiBalance} ${symbol}`;
-        const claimedAt = new Date(Number(earner.last_claim_timestamp) * 1000).toISOString();
-        out.push(
-          paint(
-            C.dim,
-            `  - earner=${address.toBase58()} user=${earner.user.toBase58()} token_account=${earner.user_token_account.toBase58()} ` +
-              `balance=${balance} last_claim_index=${earner.last_claim_index} last_claim=${claimedAt}`
-          )
-        );
-      }
+      out.push("");
+      out.push(paint(C.bold, `  Earners (${r.ext.earners.length})`));
+      const fmt = (n: number) => n.toLocaleString("en-US", { minimumFractionDigits: 6, maximumFractionDigits: 6 });
+      const rows = [...r.ext.earners]
+        .sort((a, b) => (b.uiBalance ?? -1) - (a.uiBalance ?? -1))
+        .map(({ earner, uiBalance }) => {
+          const claimedMs = Number(earner.last_claim_timestamp) * 1000;
+          const days = (Date.now() - claimedMs) / 86_400_000;
+          return [
+            earner.user.toBase58(),
+            earner.user_token_account.toBase58(),
+            uiBalance === null ? "n/a" : fmt(uiBalance),
+            earner.last_claim_index.toString(),
+            `${new Date(claimedMs).toISOString().slice(0, 16).replace("T", " ")} (${days.toFixed(1)}d ago)`,
+          ];
+        });
+      const header = ["user", "token account", `balance (${r.ext.label ?? "ext"})`, "claim index", "last claim"];
+      const widths = header.map((h, i) => Math.max(h.length, ...rows.map((row) => row[i].length)));
+      // balance and index columns are right-aligned
+      const line = (cells: string[]) =>
+        "  " + cells.map((c, i) => (i === 2 || i === 3 ? c.padStart(widths[i]) : c.padEnd(widths[i]))).join("  ").trimEnd();
+      out.push(paint(C.dim, line(header)));
+      out.push(paint(C.dim, "  " + widths.map((w) => "─".repeat(w)).join("  ")));
+      for (const row of rows) out.push(line(row));
     }
     out.push("");
   }
